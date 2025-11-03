@@ -1308,15 +1308,6 @@ packages:
         cpu: [x64]
         os: [darwin]
 
-    '@tailwindcss/oxide-freebsd-x64@4.1.14':
-        resolution:
-            {
-                integrity: sha512-QWLoRXNikEuqtNb0dhQN6wsSVVjX6dmUFzuuiL09ZeXju25dsei2uIPl71y2Ic6QbNBsB4scwBoFnlBfabHkEw==,
-            }
-        engines: { node: '>= 10' }
-        cpu: [x64]
-        os: [freebsd]
-
     '@tailwindcss/oxide-linux-arm-gnueabihf@4.1.14':
         resolution:
             {
@@ -1348,15 +1339,6 @@ packages:
         resolution:
             {
                 integrity: sha512-02c6JhLPJj10L2caH4U0zF8Hji4dOeahmuMl23stk0MU1wfd1OraE7rOloidSF8W5JTHkFdVo/O7uRUJJnUAJg==,
-            }
-        engines: { node: '>= 10' }
-        cpu: [x64]
-        os: [linux]
-
-    '@tailwindcss/oxide-linux-x64-musl@4.1.14':
-        resolution:
-            {
-                integrity: sha512-TNGeLiN1XS66kQhxHG/7wMeQDOoL0S33x9BgmydbrWAb9Qw0KYdd8o1ifx4HOGDWhVmJ+Ul+JQ7lyknQFilO3Q==,
             }
         engines: { node: '>= 10' }
         cpu: [x64]
@@ -5410,9 +5392,6 @@ snapshots:
     '@tailwindcss/oxide-darwin-x64@4.1.14':
         optional: true
 
-    '@tailwindcss/oxide-freebsd-x64@4.1.14':
-        optional: true
-
     '@tailwindcss/oxide-linux-arm-gnueabihf@4.1.14':
         optional: true
 
@@ -5423,9 +5402,6 @@ snapshots:
         optional: true
 
     '@tailwindcss/oxide-linux-x64-gnu@4.1.14':
-        optional: true
-
-    '@tailwindcss/oxide-linux-x64-musl@4.1.14':
         optional: true
 
     '@tailwindcss/oxide-wasm32-wasi@4.1.14':
@@ -5445,12 +5421,10 @@ snapshots:
             '@tailwindcss/oxide-android-arm64': 4.1.14
             '@tailwindcss/oxide-darwin-arm64': 4.1.14
             '@tailwindcss/oxide-darwin-x64': 4.1.14
-            '@tailwindcss/oxide-freebsd-x64': 4.1.14
             '@tailwindcss/oxide-linux-arm-gnueabihf': 4.1.14
             '@tailwindcss/oxide-linux-arm64-gnu': 4.1.14
             '@tailwindcss/oxide-linux-arm64-musl': 4.1.14
             '@tailwindcss/oxide-linux-x64-gnu': 4.1.14
-            '@tailwindcss/oxide-linux-x64-musl': 4.1.14
             '@tailwindcss/oxide-wasm32-wasi': 4.1.14
             '@tailwindcss/oxide-win32-arm64-msvc': 4.1.14
             '@tailwindcss/oxide-win32-x64-msvc': 4.1.14
