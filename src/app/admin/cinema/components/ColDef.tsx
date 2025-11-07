@@ -123,14 +123,14 @@ export const useCinemaColumns = ({
                                     Copy ID
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => onViewDetails && onViewDetails(cinema)}>
                                     <FileText /> View details
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onSelect={() => onEdit && onEdit(cinema)}>
                                     <SquarePen /> Edit
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => onDelete && onDelete(cinema)}>
                                     <Trash2 /> Remove
                                 </DropdownMenuItem>
                             </DropdownMenuContent>

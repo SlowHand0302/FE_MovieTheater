@@ -2,6 +2,7 @@ import { Toaster } from 'sonner';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { ReactQueryProvider } from '@/providers/ReactQuery.provider';
+import { ConfirmProvider } from '@/providers/ConfirmContext.provider';
 
 import './globals.css';
 
@@ -28,7 +29,9 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-                <ReactQueryProvider>{children}</ReactQueryProvider>
+                <ReactQueryProvider>
+                    <ConfirmProvider>{children}</ConfirmProvider>
+                </ReactQueryProvider>
                 <Toaster />
             </body>
         </html>

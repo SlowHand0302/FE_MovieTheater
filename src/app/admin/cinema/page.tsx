@@ -1,4 +1,6 @@
 'use client';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import {
     useReactTable,
@@ -12,8 +14,8 @@ import {
     getFacetedRowModel,
     getFacetedUniqueValues,
 } from '@tanstack/react-table';
-import { CircleX, Plus } from 'lucide-react';
 
+import { CircleX, Plus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import CinemaForm from './components/CinemaForm';
@@ -23,9 +25,13 @@ import { dummyCinemas } from '@/features/cinema/constants/dummyData.constant';
 import { DataTableColFilter } from '@/components/data-table/DataTableColFilter';
 import { DataTablePagination } from '@/components/data-table/DataTablePagination';
 import { DataTableViewOptions } from '@/components/data-table/DataTableViewOptions';
+
 import { Cinema } from '@/interfaces/Cinema.interface';
+import { useConfirm } from '@/providers/ConfirmContext.provider';
 
 const Page = () => {
+    const confirm = useConfirm();
+    const router = useRouter();
     const [selectedCinema, setSelectedCinema] = useState<Cinema>();
     const [openFormDialog, setOpenFormDialog] = useState<boolean>(false);
 
@@ -35,6 +41,10 @@ const Page = () => {
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
     const columns = useCinemaColumns({
         onEdit: handleEditCinema,
+        onDelete: handleDeleteCinema,
+        onViewDetails(cinema) {
+            router.push(`#${cinema.id}`);
+        },
     });
 
     const table = useReactTable({
@@ -62,6 +72,27 @@ const Page = () => {
     function handleEditCinema(cinema: Cinema) {
         setSelectedCinema(cinema);
         setOpenFormDialog(true);
+    }
+
+    async function handleDeleteCinema(cinema: Cinema) {
+        const confirmed = await confirm({});
+        if (confirmed) {
+            toast.success('You submitted the following values:', {
+                description: (
+                    <pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
+                        <code>{JSON.stringify(cinema, null, 2)}</code>
+                    </pre>
+                ),
+                position: 'bottom-right',
+                classNames: {
+                    content: 'flex flex-col gap-2',
+                },
+                style: {
+                    '--border-radius': 'calc(var(--radius)  + 4px)',
+                } as React.CSSProperties,
+                richColors: true,
+            });
+        }
     }
 
     useEffect(() => {
