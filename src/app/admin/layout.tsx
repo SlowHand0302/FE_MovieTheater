@@ -1,8 +1,5 @@
 import React, { ReactNode } from 'react';
 import { AppSidebar } from './components/app-sidebar';
-import { NavDocuments } from './components/nav-documents';
-import { NavMain } from './components/nav-main';
-import { NavUser } from './components/nav-user';
 import { SiteHeader } from './components/site-header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 
