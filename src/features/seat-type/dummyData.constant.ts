@@ -1,0 +1,55 @@
+import { SeatType } from '@/interfaces/SeatType.interface';
+
+// Hard-coded SeatType data
+export const dummySeatTypes: SeatType[] = [
+    {
+        id: 'st-001',
+        createdAt: new Date('2023-05-05T09:00:00Z'),
+        updatedAt: new Date('2023-05-05T09:00:00Z'),
+        createdBy: 'usr_001',
+        updatedBy: 'usr_001',
+        isDeleted: false,
+        type: 'Standard',
+        extraPrice: 0,
+    },
+    {
+        id: 'st-002',
+        createdAt: new Date('2023-05-05T09:05:00Z'),
+        updatedAt: new Date('2023-05-05T09:05:00Z'),
+        createdBy: 'usr_001',
+        updatedBy: 'usr_001',
+        isDeleted: false,
+        type: 'Premium',
+        extraPrice: 15,
+    },
+    {
+        id: 'st-003',
+        createdAt: new Date('2023-05-05T09:10:00Z'),
+        updatedAt: new Date('2023-05-05T09:10:00Z'),
+        createdBy: 'usr_001',
+        updatedBy: 'usr_001',
+        isDeleted: false,
+        type: 'Recliner',
+        extraPrice: 25,
+    },
+    {
+        id: 'st-004',
+        createdAt: new Date('2023-05-05T09:15:00Z'),
+        updatedAt: new Date('2023-05-05T09:15:00Z'),
+        createdBy: 'usr_001',
+        updatedBy: 'usr_001',
+        isDeleted: false,
+        type: 'VIP Sofa',
+        extraPrice: 40,
+    },
+    {
+        id: 'st-005',
+        createdAt: new Date('2023-05-05T09:20:00Z'),
+        updatedAt: new Date('2024-03-20T11:30:00Z'),
+        createdBy: 'usr_001',
+        updatedBy: 'usr_005',
+        isDeleted: true,
+        type: 'Loveseat',
+        extraPrice: 30,
+    },
+];

@@ -16,30 +16,30 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { RoomType } from '@/interfaces/RoomType.interface';
+import { SeatType } from '@/interfaces/SeatType.interface';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 
-const roomTypeFormSchema = z.object({
-    type: z.string().nonempty('Room Type Name required'),
-    basePrice: z.number().nonnegative('The price must not be negative').gt(0, 'The price must larger than 0'),
+const seatTypeFormSchema = z.object({
+    type: z.string().nonempty('Seat Type Name required'),
+    extraPrice: z.number().nonnegative('The price must not be negative').gt(0, 'The price must larger than 0'),
 });
 
-interface RoomTypeFormProps {
-    roomType?: RoomType;
+interface SeatTypeFormProps {
+    seatType?: SeatType;
     openForm: boolean;
     setOpenForm: (isOpen: boolean) => void;
 }
 
-const RoomTypeForm = ({ roomType, openForm, setOpenForm }: RoomTypeFormProps) => {
-    const form = useForm<z.infer<typeof roomTypeFormSchema>>({
-        resolver: zodResolver(roomTypeFormSchema),
+const SeatTypeForm = ({ seatType, openForm, setOpenForm }: SeatTypeFormProps) => {
+    const form = useForm<z.infer<typeof seatTypeFormSchema>>({
+        resolver: zodResolver(seatTypeFormSchema),
         defaultValues: {
             type: '',
-            basePrice: 0,
+            extraPrice: 0,
         },
     });
 
-    const onSubmit = (data: z.infer<typeof roomTypeFormSchema>) => {
+    const onSubmit = (data: z.infer<typeof seatTypeFormSchema>) => {
         setOpenForm(false);
         toast.success('You submitted the following values:', {
             description: (
@@ -61,31 +61,31 @@ const RoomTypeForm = ({ roomType, openForm, setOpenForm }: RoomTypeFormProps) =>
 
     useEffect(() => {
         if (!openForm) return;
-        const defaultValue = roomType ? { ...roomType } : { type: '', basePrice: 0 };
+        const defaultValue = seatType ? { ...seatType } : { type: '', extraPrice: 0 };
         form.reset(defaultValue);
-    }, [roomType, form, openForm]);
+    }, [seatType, form, openForm]);
 
     return (
         <Dialog open={openForm} onOpenChange={setOpenForm}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>{roomType ? 'Edit' : 'Create new'} Room Type</DialogTitle>
+                    <DialogTitle>{seatType ? 'Edit' : 'Create new'} Seat Type</DialogTitle>
                     <DialogDescription>
-                        {roomType ? 'Make changes to your Room Type' : 'Create new Room Type'} here. Click save when
+                        {seatType ? 'Make changes to your Seat Type' : 'Create new Seat Type'} here. Click save when
                         you&apos;re done.
                     </DialogDescription>
                 </DialogHeader>
-                <form id="form-room-type" onSubmit={form.handleSubmit(onSubmit)}>
+                <form id="form-seat-type" onSubmit={form.handleSubmit(onSubmit)}>
                     <FieldGroup className="gap-3">
                         <Controller
                             name="type"
                             control={form.control}
                             render={({ field, fieldState }) => (
                                 <Field data-invalid={fieldState.invalid} className="gap-1">
-                                    <FieldLabel htmlFor="room-type-name">Name</FieldLabel>
+                                    <FieldLabel htmlFor="seat-type-name">Name</FieldLabel>
                                     <Input
                                         {...field}
-                                        id="room-type-name"
+                                        id="seat-type-name"
                                         aria-invalid={fieldState.invalid}
                                         placeholder="Aa..."
                                         autoComplete="off"
@@ -95,14 +95,14 @@ const RoomTypeForm = ({ roomType, openForm, setOpenForm }: RoomTypeFormProps) =>
                             )}
                         />
                         <Controller
-                            name="basePrice"
+                            name="extraPrice"
                             control={form.control}
                             render={({ field, fieldState }) => (
                                 <Field data-invalid={fieldState.invalid} className="gap-1">
-                                    <FieldLabel htmlFor="room-type-base-price">Base Price</FieldLabel>
+                                    <FieldLabel htmlFor="seat-type-extra-price">Extra Price</FieldLabel>
                                     <Input
                                         {...field}
-                                        id="room-type-base-price"
+                                        id="seat-type-extra-price"
                                         aria-invalid={fieldState.invalid}
                                         type="number"
                                         value={field.value === null ? '' : String(field.value)} // Handle null for display
@@ -130,4 +130,4 @@ const RoomTypeForm = ({ roomType, openForm, setOpenForm }: RoomTypeFormProps) =>
     );
 };
 
-export default RoomTypeForm;
+export default SeatTypeForm;
