@@ -97,9 +97,10 @@ const CinemaForm = ({ cinema, openForm, setOpenForm }: CinemaFormProps) => {
         <Dialog open={openForm} onOpenChange={setOpenForm}>
             <DialogContent className="max-w-[90vw] md:max-w-xl">
                 <DialogHeader>
-                    <DialogTitle>Create new Cinema</DialogTitle>
+                    <DialogTitle>{cinema ? 'Edit' : 'Create new'} new Cinema</DialogTitle>
                     <DialogDescription>
-                        Make changes to your profile here. Click save when you&apos;re done.
+                        {cinema ? 'Make changes to your Room Type' : 'Create new Room Type'} here. Click save when
+                        you&apos;re done.
                     </DialogDescription>
                 </DialogHeader>
                 <form

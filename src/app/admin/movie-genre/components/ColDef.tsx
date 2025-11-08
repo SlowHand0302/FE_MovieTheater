@@ -85,27 +85,26 @@ export const useMovieGenreColumns = ({ onEdit, onDelete, onCopyId }: Partial<use
                 id: 'actions',
                 enableHiding: false,
                 cell: ({ row }) => {
-                    const cinema = row.original;
+                    const genre = row.original;
 
                     return (
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" className="h-8 w-8 p-0 ">
-                                    <span className="sr-only">Open menu</span>
                                     <MoreHorizontal />
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuItem onClick={() => navigator.clipboard.writeText(cinema.id)}>
+                                <DropdownMenuItem onClick={() => navigator.clipboard.writeText(genre.id)}>
                                     <Copy />
                                     Copy ID
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onSelect={() => onEdit && onEdit(cinema)}>
+                                <DropdownMenuItem onSelect={() => onEdit && onEdit(genre)}>
                                     <SquarePen /> Edit
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem onSelect={() => onDelete && onDelete(cinema)}>
+                                <DropdownMenuItem onSelect={() => onDelete && onDelete(genre)}>
                                     <Trash2 /> Remove
                                 </DropdownMenuItem>
                             </DropdownMenuContent>

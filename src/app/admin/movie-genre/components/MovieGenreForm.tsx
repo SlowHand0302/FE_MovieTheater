@@ -67,23 +67,23 @@ const MovieGenreForm = ({ genre, openForm, setOpenForm }: MovieGenreFormProps) =
         <Dialog open={openForm} onOpenChange={setOpenForm}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Create new Movie Genre</DialogTitle>
+                    <DialogTitle>{genre ? 'Edit' : 'Create new'} new Movie Genre</DialogTitle>
                     <DialogDescription>
                         {genre ? 'Make changes to your Movie Genre' : 'Create new Movie Genre'} here. Click save when
                         you&apos;re done.
                     </DialogDescription>
                 </DialogHeader>
-                <form id="form-cinema" onSubmit={form.handleSubmit(onSubmit)}>
+                <form id="form-movie-genre" onSubmit={form.handleSubmit(onSubmit)}>
                     <FieldGroup className="gap-3">
                         <Controller
                             name="name"
                             control={form.control}
                             render={({ field, fieldState }) => (
                                 <Field data-invalid={fieldState.invalid} className="gap-1">
-                                    <FieldLabel htmlFor="cinema-name">Name</FieldLabel>
+                                    <FieldLabel htmlFor="movie-genre-name">Name</FieldLabel>
                                     <Input
                                         {...field}
-                                        id="cinema-name"
+                                        id="movie-genre-name"
                                         aria-invalid={fieldState.invalid}
                                         placeholder="Aa..."
                                         autoComplete="off"
