@@ -2,7 +2,7 @@ export interface Auditable {
     id: string;
     createdAt: Date;
     updatedAt: Date;
-    createBy: string;
-    updateBy: string;
+    createdBy: string;
+    updatedBy: string;
     isDeleted: boolean;
 }
