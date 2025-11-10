@@ -13,18 +13,16 @@ import {
 import { FunnelPlus } from 'lucide-react';
 import { Column } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
+import { FilterOption } from '@/types/FilterOption';
 
-interface DataTableColFilterProps<TData, TValue extends string> {
+interface DataTableColFilterProps<TData> {
     column: Column<TData, unknown> | undefined;
     variant: 'range' | 'single' | 'multiple';
-    options: readonly TValue[];
+    options: readonly FilterOption[];
+    label?: string;
 }
 
-export function DataTableColFilter<TData, TValue extends string>({
-    column,
-    variant,
-    options,
-}: DataTableColFilterProps<TData, TValue>) {
+export function DataTableColFilter<TData>({ column, variant, options, label }: DataTableColFilterProps<TData>) {
     const filterValue = column?.getFilterValue();
 
     const selectedSingle = (filterValue as string | undefined) ?? '';
@@ -45,11 +43,11 @@ export function DataTableColFilter<TData, TValue extends string>({
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="hidden capitalize lg:flex">
-                    <FunnelPlus /> {column?.id}
+                    <FunnelPlus /> {label || column?.id}
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-fit">
-                <DropdownMenuLabel className="capitalize">{column?.id} Filter</DropdownMenuLabel>
+                <DropdownMenuLabel className="capitalize">{label || column?.id} Filter</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {variant === 'single' && (
                     <SingleFilterCol
@@ -70,22 +68,22 @@ export function DataTableColFilter<TData, TValue extends string>({
     );
 }
 
-interface SingleFilterColProps<TValue extends string> {
+interface SingleFilterColProps {
     radioState: string;
     onChange: (value: string) => void;
-    options: readonly TValue[];
+    options: readonly FilterOption[];
 }
 
-function SingleFilterCol<TValue extends string>({ radioState, onChange, options }: SingleFilterColProps<TValue>) {
+function SingleFilterCol({ radioState, onChange, options }: SingleFilterColProps) {
     return (
         <DropdownMenuRadioGroup value={radioState} onValueChange={onChange}>
             <DropdownMenuRadioItem defaultChecked value="">
                 All
             </DropdownMenuRadioItem>
-            {options?.map((value, index) => {
+            {options?.map((option, index) => {
                 return (
-                    <DropdownMenuRadioItem className="capitalize" key={index} value={value}>
-                        {value}
+                    <DropdownMenuRadioItem className="capitalize" key={index} value={option.value}>
+                        {option.label}
                     </DropdownMenuRadioItem>
                 );
             })}
@@ -93,27 +91,23 @@ function SingleFilterCol<TValue extends string>({ radioState, onChange, options 
     );
 }
 
-interface MultipleFilterColProps<TValue extends string> {
+interface MultipleFilterColProps {
     multipleState: string[];
     onChange: (value: string, checked: boolean) => void;
-    options: readonly TValue[];
+    options: readonly FilterOption[];
 }
 
-function MultipleFilterCol<TValue extends string>({
-    options,
-    multipleState,
-    onChange,
-}: MultipleFilterColProps<TValue>) {
+function MultipleFilterCol({ options, multipleState, onChange }: MultipleFilterColProps) {
     return (
         <>
-            {options?.map((value, index) => {
+            {options?.map((option, index) => {
                 return (
                     <DropdownMenuCheckboxItem
                         key={index}
-                        checked={multipleState.includes(value)}
-                        onCheckedChange={(checked) => onChange(value, checked)}
+                        checked={multipleState.includes(option.value)}
+                        onCheckedChange={(checked) => onChange(option.value, checked)}
                     >
-                        {value}
+                        {option.label}
                     </DropdownMenuCheckboxItem>
                 );
             })}

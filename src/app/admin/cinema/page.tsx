@@ -115,7 +115,7 @@ const Page = () => {
                         <DataTableColFilter
                             column={table.getColumn('status')}
                             variant="multiple"
-                            options={Object.values(CinemaStatus)}
+                            options={Object.values(CinemaStatus).map((item) => ({ label: item, value: item }))}
                         />
                         {columnFilters.length > 0 || Object.keys(columnVisibility).length > 0 ? (
                             <Button
