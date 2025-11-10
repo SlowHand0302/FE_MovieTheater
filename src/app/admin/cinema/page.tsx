@@ -26,7 +26,7 @@ import { DataTableColFilter } from '@/components/data-table/DataTableColFilter';
 import { DataTablePagination } from '@/components/data-table/DataTablePagination';
 import { DataTableViewOptions } from '@/components/data-table/DataTableViewOptions';
 
-import { Cinema } from '@/interfaces/Cinema.interface';
+import { Cinema, CinemaStatus } from '@/interfaces/Cinema.interface';
 import { useConfirm } from '@/providers/ConfirmContext.provider';
 
 const Page = () => {
@@ -43,7 +43,7 @@ const Page = () => {
         onEdit: handleEditCinema,
         onDelete: handleDeleteCinema,
         onViewDetails(cinema) {
-            router.push(`#${cinema.id}`);
+            router.push(`/admin/cinema/${cinema.id}`);
         },
     });
 
@@ -112,7 +112,11 @@ const Page = () => {
                             onChange={(event) => table.getColumn('name')?.setFilterValue(event.target.value)}
                             className="max-w-sm h-8"
                         />
-                        <DataTableColFilter column={table.getColumn('status')} variant="multiple" />
+                        <DataTableColFilter
+                            column={table.getColumn('status')}
+                            variant="multiple"
+                            options={Object.values(CinemaStatus)}
+                        />
                         {columnFilters.length > 0 || Object.keys(columnVisibility).length > 0 ? (
                             <Button
                                 variant="outline"

@@ -1,5 +1,4 @@
 'use client';
-import { useMemo } from 'react';
 
 import {
     DropdownMenu,
@@ -15,25 +14,21 @@ import { FunnelPlus } from 'lucide-react';
 import { Column } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 
-interface DataTableColFilterProps<TData> {
+interface DataTableColFilterProps<TData, TValue extends string> {
     column: Column<TData, unknown> | undefined;
     variant: 'range' | 'single' | 'multiple';
+    options: readonly TValue[];
 }
 
-export function DataTableColFilter<TData>({ column, variant }: DataTableColFilterProps<TData>) {
+export function DataTableColFilter<TData, TValue extends string>({
+    column,
+    variant,
+    options,
+}: DataTableColFilterProps<TData, TValue>) {
     const filterValue = column?.getFilterValue();
 
     const selectedSingle = (filterValue as string | undefined) ?? '';
     const selectedMultiple = (filterValue as string[] | undefined) ?? [];
-
-    const sortedUniqueValues = useMemo(() => {
-        if (!column || variant === 'range') return [];
-
-        const map = column.getFacetedUniqueValues(); // Map<unknown, number>
-        return Array.from(map.keys())
-            .filter((v): v is string => typeof v === 'string')
-            .sort();
-    }, [column, variant]);
 
     const handleSingleFilterOptionsChange = (value: string) => {
         column?.setFilterValue(value || undefined);
@@ -60,13 +55,13 @@ export function DataTableColFilter<TData>({ column, variant }: DataTableColFilte
                     <SingleFilterCol
                         radioState={selectedSingle}
                         onChange={handleSingleFilterOptionsChange}
-                        content={sortedUniqueValues}
+                        options={options}
                     />
                 )}
                 {variant === 'multiple' && (
                     <MultipleFilterCol
                         multipleState={selectedMultiple}
-                        content={sortedUniqueValues}
+                        options={options}
                         onChange={handleOnMultipleFilterOptionsChange}
                     />
                 )}
@@ -75,19 +70,19 @@ export function DataTableColFilter<TData>({ column, variant }: DataTableColFilte
     );
 }
 
-interface SingleFilterColProps {
+interface SingleFilterColProps<TValue extends string> {
     radioState: string;
     onChange: (value: string) => void;
-    content: string[];
+    options: readonly TValue[];
 }
 
-function SingleFilterCol({ radioState, onChange, content }: SingleFilterColProps) {
+function SingleFilterCol<TValue extends string>({ radioState, onChange, options }: SingleFilterColProps<TValue>) {
     return (
         <DropdownMenuRadioGroup value={radioState} onValueChange={onChange}>
             <DropdownMenuRadioItem defaultChecked value="">
                 All
             </DropdownMenuRadioItem>
-            {content?.map((value, index) => {
+            {options?.map((value, index) => {
                 return (
                     <DropdownMenuRadioItem className="capitalize" key={index} value={value}>
                         {value}
@@ -98,16 +93,20 @@ function SingleFilterCol({ radioState, onChange, content }: SingleFilterColProps
     );
 }
 
-interface MultipleFilterColProps {
+interface MultipleFilterColProps<TValue extends string> {
     multipleState: string[];
     onChange: (value: string, checked: boolean) => void;
-    content: string[];
+    options: readonly TValue[];
 }
 
-function MultipleFilterCol({ content, multipleState, onChange }: MultipleFilterColProps) {
+function MultipleFilterCol<TValue extends string>({
+    options,
+    multipleState,
+    onChange,
+}: MultipleFilterColProps<TValue>) {
     return (
         <>
-            {content?.map((value, index) => {
+            {options?.map((value, index) => {
                 return (
                     <DropdownMenuCheckboxItem
                         key={index}
