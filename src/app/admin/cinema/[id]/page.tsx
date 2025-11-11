@@ -1,6 +1,6 @@
 'use client';
 import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
 import {
@@ -19,6 +19,7 @@ import { CircleX, Plus } from 'lucide-react';
 import RoomForm from './components/RoomForm';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import CinemaCard from './components/CinemaCard';
 import { DataTable } from '@/components/data-table/DataTable';
 import { DataTableColFilter } from '@/components/data-table/DataTableColFilter';
 import { DataTablePagination } from '@/components/data-table/DataTablePagination';
@@ -29,10 +30,12 @@ import { Room, RoomStatus } from '@/interfaces/Room.interface';
 import { useConfirm } from '@/providers/ConfirmContext.provider';
 import { dummyRooms } from '@/features/room/constants/dummyData.constant';
 import { dummyRoomTypes } from '@/features/room-type/constants/dummyData.constant';
+import { dummyCinemas } from '@/features/cinema/constants/dummyData.constant';
 
 const Page = () => {
     const confirm = useConfirm();
     const router = useRouter();
+    const dynamicParams = useParams();
     const [selectedRoom, setSelectedRoom] = useState<Room>();
     const [openFormDialog, setOpenFormDialog] = useState<boolean>(false);
 
@@ -104,7 +107,8 @@ const Page = () => {
 
     return (
         <>
-            <main className="p-3">
+            <main className="p-3 space-y-2">
+                <CinemaCard cinema={dummyCinemas.filter((item) => item.id === dynamicParams.id)[0]} />
                 <section className="w-full space-y-2">
                     <div className="flex items-center gap-2">
                         <DataTableColFilter
