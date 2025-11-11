@@ -11,12 +11,12 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import CinemaBadge from './CinemaBadge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Cinema } from '@/interfaces/Cinema.interface';
+import { Cinema, CinemaStatus } from '@/interfaces/Cinema.interface';
 import SortableHeader from '@/components/data-table/SortableHeader';
 import { Copy, FileText, MoreHorizontal, SquarePen, Trash2 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 
 interface useCinemaColumnsParams {
     onCopyId: (id: string) => void;
@@ -72,19 +72,8 @@ export const useCinemaColumns = ({
                     return <div>Status</div>;
                 },
                 cell: ({ row }) => {
-                    const state = row.getValue('status') as string;
-                    switch (state) {
-                        case 'active':
-                            return <Badge className="bg-green-100 text-green-600">{state}</Badge>;
-                        case 'inactive':
-                            return <Badge variant="secondary">{state}</Badge>;
-                        case 'closed':
-                            return <Badge variant="destructive">{state}</Badge>;
-                        case 'maintenance':
-                            return <Badge className="bg-yellow-100 text-yellow-600">{state}</Badge>;
-                        default:
-                            return <Badge>{state}</Badge>;
-                    }
+                    const state = row.getValue('status') as CinemaStatus;
+                    return <CinemaBadge status={state} />;
                 },
                 filterFn: (row, _, filterValue) => {
                     return filterValue.length === 0 ? row.original.status : filterValue.includes(row.original.status); // true or false based on your custom logic

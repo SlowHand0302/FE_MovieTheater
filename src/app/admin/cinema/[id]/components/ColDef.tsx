@@ -11,13 +11,13 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Room } from '@/interfaces/Room.interface';
+import { Room, RoomStatus } from '@/interfaces/Room.interface';
 import SortableHeader from '@/components/data-table/SortableHeader';
 import { Copy, FileText, MoreHorizontal, SquarePen, Trash2 } from 'lucide-react';
 import { dummyRoomTypes } from '@/features/room-type/constants/dummyData.constant';
+import RoomBadge from './RoomBadge';
 
 interface useRoomColumnsParams {
     onCopyId: (id: string) => void;
@@ -88,19 +88,8 @@ export const useRoomColumns = ({ onEdit, onViewDetails, onDelete, onCopyId }: Pa
                     return <div>Status</div>;
                 },
                 cell: ({ row }) => {
-                    const state = row.getValue('status') as string;
-                    switch (state) {
-                        case 'active':
-                            return <Badge className="bg-green-100 text-green-600">{state}</Badge>;
-                        case 'inactive':
-                            return <Badge variant="secondary">{state}</Badge>;
-                        case 'closed':
-                            return <Badge variant="destructive">{state}</Badge>;
-                        case 'maintenance':
-                            return <Badge className="bg-yellow-100 text-yellow-600">{state}</Badge>;
-                        default:
-                            return <Badge>{state}</Badge>;
-                    }
+                    const state = row.getValue('status') as RoomStatus;
+                    return <RoomBadge status={state} />;
                 },
                 filterFn: (row, _, filterValue) => {
                     return filterValue.length === 0 ? row.original.status : filterValue.includes(row.original.status); // true or false based on your custom logic
