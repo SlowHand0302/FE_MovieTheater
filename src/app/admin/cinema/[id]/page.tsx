@@ -17,7 +17,6 @@ import {
 } from '@tanstack/react-table';
 import { CircleX, Plus } from 'lucide-react';
 import RoomForm from './components/RoomForm';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import CinemaCard from './components/CinemaCard';
 import { DataTable } from '@/components/data-table/DataTable';
@@ -46,8 +45,8 @@ const Page = () => {
     const columns = useRoomColumns({
         onEdit: handleEditRoom,
         onDelete: handleDeleteRoom,
-        onViewDetails(cinema) {
-            router.push(`/admin/cinema/${cinema.id}`);
+        onViewDetails(room) {
+            router.push(`/admin/cinema/${room.cinemaId}/room/${room.id}`);
         },
     });
 
