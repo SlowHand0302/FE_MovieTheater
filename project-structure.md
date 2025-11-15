@@ -6,7 +6,7 @@
 - **No Relative Path Hell**: Use `@/` alias in `tsconfig.json`
 
 # Project Directory Structure
-
+```
 ├── src/
 │   ├── app/                              # Next.js App Router
 │   │   ├── layout.tsx                    # Root layout with QueryClientProvider
@@ -48,7 +48,7 @@
 ├── package.json                          # Dependencies
 ├── next.config.ts                        # Next.js config
 └── tsconfig.json                         # TypeScript config (if using TypeScript)
-
+```
 # Explanation
 
 - **[app/]:** Contains all Next.js routing logic, page-level Server Components and page-related components.
