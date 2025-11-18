@@ -13,7 +13,7 @@ import {
 import { FunnelPlus } from 'lucide-react';
 import { Column } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { FilterOption } from '@/types/FilterOption';
+import { FilterOption } from '@/types/FilterOption.type';
 
 interface DataTableColFilterProps<TData> {
     column: Column<TData, unknown> | undefined;
