@@ -22,7 +22,7 @@ import { useMovieGenreColumns } from './components/ColDef';
 import { DataTable } from '@/components/data-table/DataTable';
 import { MovieGenre } from '@/interfaces/MovieGenre.interface';
 import { useConfirm } from '@/providers/ConfirmContext.provider';
-import { dummyMovieGenres } from '@/features/movie-genre/dummyData.constant';
+import { dummyMovieGenres } from '@/features/movie-genre/constants/dummyData.constant';
 import { DataTablePagination } from '@/components/data-table/DataTablePagination';
 import { DataTableViewOptions } from '@/components/data-table/DataTableViewOptions';
 
