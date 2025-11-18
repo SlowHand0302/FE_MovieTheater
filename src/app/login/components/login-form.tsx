@@ -1,12 +1,41 @@
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSeparator } from '@/components/ui/field';
-import { Input } from '@/components/ui/input';
+'use client';
+import * as z from 'zod';
 import Link from 'next/link';
+import { useState } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Controller, useForm } from 'react-hook-form';
+
+import { cn } from '@/lib/utils';
+import { LoaderCircle, Eye, EyeOff } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '@/components/ui/input-group';
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldSeparator } from '@/components/ui/field';
+
+import { useLoginMutation } from '@/features/auth/mutations';
+
+const loginFormSchema = z.object({
+    email: z.email('Invalid email format').nonempty('Email required'),
+    password: z.string().nonempty('Password required').min(6, 'Password must have at least 6 characters'),
+});
 
 export function LoginForm({ className, ...props }: React.ComponentProps<'form'>) {
+    const { mutate, isPending } = useLoginMutation();
+    const [showPassword, setShowPassword] = useState(false);
+    const form = useForm<z.infer<typeof loginFormSchema>>({
+        resolver: zodResolver(loginFormSchema),
+        defaultValues: {
+            email: '',
+            password: '',
+        },
+    });
+
+    const onSubmit = async (data: z.infer<typeof loginFormSchema>) => {
+        mutate(data);
+    };
+
     return (
-        <form className={cn('flex flex-col gap-6', className)} {...props}>
+        <form className={cn('flex flex-col gap-6', className)} {...props} onSubmit={form.handleSubmit(onSubmit)}>
             <FieldGroup>
                 <div className="flex flex-col items-center gap-1 text-center">
                     <h1 className="text-2xl font-bold">Login to your account</h1>
@@ -14,21 +43,65 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'form'>)
                         Enter your email below to login to your account
                     </p>
                 </div>
+                <Controller
+                    name="email"
+                    control={form.control}
+                    render={({ field, fieldState }) => (
+                        <Field data-invalid={fieldState.invalid} className="gap-1">
+                            <FieldLabel htmlFor="login-email">Email</FieldLabel>
+                            <Input
+                                {...field}
+                                id="login-email"
+                                aria-invalid={fieldState.invalid}
+                                placeholder="example@gmail.com"
+                                autoComplete="off"
+                                disabled={isPending}
+                            />
+                            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                        </Field>
+                    )}
+                />
+                <Controller
+                    name="password"
+                    control={form.control}
+                    render={({ field, fieldState }) => (
+                        <Field data-invalid={fieldState.invalid} className="gap-1">
+                            <div className="flex items-center">
+                                <FieldLabel htmlFor="login-password">Password</FieldLabel>
+                                <a href="#" className="ml-auto text-sm underline-offset-4 hover:underline">
+                                    Forgot your password?
+                                </a>
+                            </div>
+                            <InputGroup>
+                                <InputGroupInput
+                                    {...field}
+                                    id="login-password"
+                                    aria-invalid={fieldState.invalid}
+                                    autoComplete="off"
+                                    type={showPassword ? 'text' : 'password'}
+                                    disabled={isPending}
+                                />
+                                <InputGroupAddon align="inline-end">
+                                    <InputGroupButton
+                                        aria-label="Copy"
+                                        title="Copy"
+                                        size="icon-xs"
+                                        disabled={isPending}
+                                        onClick={() => setShowPassword(!showPassword)}
+                                    >
+                                        {showPassword ? <Eye /> : <EyeOff />}
+                                    </InputGroupButton>
+                                </InputGroupAddon>
+                            </InputGroup>
+                            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                        </Field>
+                    )}
+                />
                 <Field>
-                    <FieldLabel htmlFor="email">Email</FieldLabel>
-                    <Input id="email" type="email" placeholder="m@example.com" required />
-                </Field>
-                <Field>
-                    <div className="flex items-center">
-                        <FieldLabel htmlFor="password">Password</FieldLabel>
-                        <a href="#" className="ml-auto text-sm underline-offset-4 hover:underline">
-                            Forgot your password?
-                        </a>
-                    </div>
-                    <Input id="password" type="password" required />
-                </Field>
-                <Field>
-                    <Button type="submit">Login</Button>
+                    <Button type="submit" disabled={isPending} className="flex items-center justify-center">
+                        {isPending && <LoaderCircle className="animate-spin" />}
+                        {isPending ? 'Processing Login...' : 'Login'}
+                    </Button>
                 </Field>
                 <FieldSeparator>Or continue with</FieldSeparator>
                 <Field>

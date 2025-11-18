@@ -1,12 +1,50 @@
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSeparator } from '@/components/ui/field';
-import { Input } from '@/components/ui/input';
+'use client';
+import * as z from 'zod';
 import Link from 'next/link';
+import { useState } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Controller, useForm } from 'react-hook-form';
+
+import { cn } from '@/lib/utils';
+import { Eye, EyeOff, LoaderCircle } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '@/components/ui/input-group';
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldSeparator } from '@/components/ui/field';
+
+import { useRegisterMutation } from '@/features/auth/mutations';
+
+const signUpFormSchema = z
+    .object({
+        fullname: z.string().nonempty('Full Name required').min(6, 'Full name must have at least 6 characters'),
+        email: z.email('Invalid email format').nonempty('Email required'),
+        password: z.string().nonempty('Password required').min(6, 'Password must have at least 6 characters'),
+        confirmPassword: z.string().nonempty('Confirm Password required'),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+        message: "Confirm passwords don't match",
+        path: ['confirmPassword'], // This specifies where the error message will be displayed
+    });
 
 export function SignupForm({ className, ...props }: React.ComponentProps<'form'>) {
+    const { mutate, isPending } = useRegisterMutation();
+    const [showPassword, setShowPassword] = useState(false);
+    const form = useForm<z.infer<typeof signUpFormSchema>>({
+        resolver: zodResolver(signUpFormSchema),
+        defaultValues: {
+            fullname: '',
+            email: '',
+            password: '',
+            confirmPassword: '',
+        },
+    });
+
+    const onSubmit = (data: z.infer<typeof signUpFormSchema>) => {
+        mutate(data);
+    };
+
     return (
-        <form className={cn('flex flex-col gap-6', className)} {...props}>
+        <form className={cn('flex flex-col gap-6', className)} {...props} onSubmit={form.handleSubmit(onSubmit)}>
             <FieldGroup className="gap-3">
                 <div className="flex flex-col items-center gap-1 text-center">
                     <h1 className="text-2xl font-bold">Create your account</h1>
@@ -14,29 +52,113 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'form'>
                         Fill in the form below to create your account
                     </p>
                 </div>
-                <Field>
-                    <FieldLabel htmlFor="name">Full Name</FieldLabel>
-                    <Input id="name" type="text" placeholder="John Doe" required />
-                </Field>
-                <Field>
-                    <FieldLabel htmlFor="email">Email</FieldLabel>
-                    <Input id="email" type="email" placeholder="m@example.com" required />
-                </Field>
+                <Controller
+                    name="fullname"
+                    control={form.control}
+                    render={({ field, fieldState }) => (
+                        <Field data-invalid={fieldState.invalid} className="gap-1">
+                            <FieldLabel htmlFor="signup-fullname">Full Name</FieldLabel>
+                            <Input
+                                {...field}
+                                id="signup-fullname"
+                                aria-invalid={fieldState.invalid}
+                                placeholder="Aa..."
+                                autoComplete="off"
+                                disabled={isPending}
+                            />
+                            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                        </Field>
+                    )}
+                />
+                <Controller
+                    name="email"
+                    control={form.control}
+                    render={({ field, fieldState }) => (
+                        <Field data-invalid={fieldState.invalid} className="gap-1">
+                            <FieldLabel htmlFor="signup-email">Email</FieldLabel>
+                            <Input
+                                {...field}
+                                id="signup-email"
+                                aria-invalid={fieldState.invalid}
+                                placeholder="example@gmail.com"
+                                autoComplete="off"
+                                disabled={isPending}
+                            />
+                            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                        </Field>
+                    )}
+                />
                 <Field>
                     <Field className="grid grid-cols-2 gap-4">
-                        <Field>
-                            <FieldLabel htmlFor="password">Password</FieldLabel>
-                            <Input id="password" type="password" required />
-                        </Field>
-                        <Field>
-                            <FieldLabel htmlFor="confirm-password">Confirm Password</FieldLabel>
-                            <Input id="confirm-password" type="password" required />
-                        </Field>
+                        <Controller
+                            name="password"
+                            control={form.control}
+                            render={({ field, fieldState }) => (
+                                <Field data-invalid={fieldState.invalid} className="gap-1">
+                                    <FieldLabel htmlFor="signup-password">Password</FieldLabel>
+                                    <InputGroup>
+                                        <InputGroupInput
+                                            {...field}
+                                            id="signup-password"
+                                            aria-invalid={fieldState.invalid}
+                                            autoComplete="off"
+                                            type={showPassword ? 'text' : 'password'}
+                                            disabled={isPending}
+                                        />
+                                        <InputGroupAddon align="inline-end">
+                                            <InputGroupButton
+                                                aria-label="Copy"
+                                                title="Copy"
+                                                size="icon-xs"
+                                                disabled={isPending}
+                                                onClick={() => setShowPassword(!showPassword)}
+                                            >
+                                                {showPassword ? <Eye /> : <EyeOff />}
+                                            </InputGroupButton>
+                                        </InputGroupAddon>
+                                    </InputGroup>
+                                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                                </Field>
+                            )}
+                        />
+                        <Controller
+                            name="confirmPassword"
+                            control={form.control}
+                            render={({ field, fieldState }) => (
+                                <Field data-invalid={fieldState.invalid} className="gap-1">
+                                    <FieldLabel htmlFor="signup-confirm-password">Confirm Password</FieldLabel>
+                                    <InputGroup>
+                                        <InputGroupInput
+                                            {...field}
+                                            id="signup-confirm-password"
+                                            aria-invalid={fieldState.invalid}
+                                            autoComplete="off"
+                                            type={showPassword ? 'text' : 'password'}
+                                            disabled={isPending}
+                                        />
+                                        <InputGroupAddon align="inline-end">
+                                            <InputGroupButton
+                                                aria-label="Copy"
+                                                title="Copy"
+                                                size="icon-xs"
+                                                disabled={isPending}
+                                                onClick={() => setShowPassword(!showPassword)}
+                                            >
+                                                {showPassword ? <Eye /> : <EyeOff />}
+                                            </InputGroupButton>
+                                        </InputGroupAddon>
+                                    </InputGroup>
+                                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                                </Field>
+                            )}
+                        />
                     </Field>
-                    <FieldDescription>Must be at least 8 characters long.</FieldDescription>
                 </Field>
                 <Field>
-                    <Button type="submit">Create Account</Button>
+                    <Button type="submit" disabled={isPending} className="flex items-center justify-center">
+                        {isPending && <LoaderCircle className="animate-spin" />}
+                        {isPending ? 'Processing Create Account...' : 'Create Account'}
+                    </Button>
                 </Field>
                 <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
                     Or continue with
