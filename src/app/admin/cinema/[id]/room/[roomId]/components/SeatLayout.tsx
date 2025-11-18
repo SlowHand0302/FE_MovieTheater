@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Trash2, Plus, Save, RotateCcw, SquarePower, MousePointerClick, Sparkles } from 'lucide-react';
 
 import { SeatStatus, Seat as ISeat } from '@/interfaces/Seat.interface';
-import { dummySeatTypes } from '@/features/seat-type/dummyData.constant';
+import { dummySeatTypes } from '@/features/seat-type/constants/dummyData.constant';
 import { dummyRooms } from '@/features/room/constants/dummyData.constant';
 import { generateMockSeats } from '@/features/seat/constant/dummyData.constant';
 

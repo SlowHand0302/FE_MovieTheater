@@ -24,7 +24,7 @@ import { DataTable } from '@/components/data-table/DataTable';
 import { useConfirm } from '@/providers/ConfirmContext.provider';
 import { DataTablePagination } from '@/components/data-table/DataTablePagination';
 import { DataTableViewOptions } from '@/components/data-table/DataTableViewOptions';
-import { dummySeatTypes } from '@/features/seat-type/dummyData.constant';
+import { dummySeatTypes } from '@/features/seat-type/constants/dummyData.constant';
 
 const Page = () => {
     const confirm = useConfirm();
