@@ -5,4 +5,9 @@ export interface User extends Auditable {
     email: string;
     password: string;
     role: string;
+    phoneNumber: string;
+    dayOfBirth: Date;
+    gender: string;
+    point: number;
+    address: string;
 }
