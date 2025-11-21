@@ -1,81 +1,101 @@
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import Image from 'next/image';
-import { StarIcon } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
-const FeaturedSection = () => {
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Calendar, Clock, Play } from 'lucide-react';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+
+import { Movie } from '@/interfaces/Movie.interface';
+import { Auditable } from '@/interfaces/Auditable.interface';
+
+interface FeaturedSectionProps {
+    title: string;
+    movies: Omit<Movie, keyof Auditable>[];
+}
+
+const FeaturedSection = ({ title, movies }: FeaturedSectionProps) => {
     return (
         <section className="my-5">
-            <header className="mb-2 flex justify-between items-center">
-                <h1 className="font-bold text-[20px]">SECTION TITLE</h1>
+            <header className="mb-0 flex justify-between items-center">
+                <h1 className="font-bold text-4xl">{title}</h1>
                 <div className="space-x-2 md:overflow-x-auto overflow-x-scroll hideScrollbar">
                     <Button variant={'outline'}>See More</Button>
                 </div>
             </header>
-            <Carousel
-                opts={{
-                    align: 'start',
-                }}
-                className="w-full"
-            >
-                <CarouselContent className="-ml-2 lg:-ml-4">
-                    {Array.from({ length: 10 }).map((_, index) => (
-                        <CarouselItem
-                            key={index}
-                            className="basis-1/2 grow pl-3 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6 2xl:basis-1/7"
-                        >
-                            <Link href={'/film/slug'} passHref>
-                                <Card className="max-w-[253px] pt-0 relative">
-                                    <CardHeader className="px-0 gap-0">
-                                        <Image
-                                            src="https://ui.shadcn.com/placeholder.svg"
-                                            alt="Banner"
-                                            className="aspect-video h-70 rounded-t-xl object-cover"
-                                            height={280}
-                                            width={253}
+            <div className="overflow-x-auto scrollbar-hidden">
+                <div className="flex gap-4 py-4 min-w-max">
+                    {movies.map((movie, index) => (
+                        <div key={index} className="w-60 flex-none">
+                            <Link href={'/movie/:id'} passHref>
+                                <Card
+                                    key={index}
+                                    className="group h-full pt-0 overflow-hidden border-border hover:border-primary/50 hover:shadow-xl"
+                                    style={{ animationDelay: `${index * 100}ms` }}
+                                >
+                                    <CardHeader className="relative aspect-[2/3] overflow-hidden px-0 gap-0">
+                                        <img
+                                            src={movie.poster}
+                                            alt={movie.name}
+                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                         />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                            <div className="absolute bottom-0 left-0 right-0 p-4 space-y-2 translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                                                <Button
+                                                    size="sm"
+                                                    className="w-full cursor-pointer"
+                                                    onClick={(event) => event.preventDefault()}
+                                                >
+                                                    <Play className="w-4 h-4 mr-2" />
+                                                    Trailer
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    variant="secondary"
+                                                    className="w-full cursor-pointer"
+                                                    onClick={(event) => event.preventDefault()}
+                                                >
+                                                    Book Now
+                                                </Button>
+                                            </div>
+                                        </div>
+
+                                        {movie.status === 'coming_soon' && (
+                                            <Badge className="absolute top-3 right-3">Coming Soon</Badge>
+                                        )}
                                     </CardHeader>
+
                                     <CardContent className="space-y-3">
-                                        <CardTitle className="text-lg line-clamp-2">
-                                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Labore, placeat
-                                            quaerat! Obcaecati qui, aperiam incidunt quam voluptatum non sint odit totam
-                                            autem, quibusdam quaerat quos voluptas accusantium molestias quasi amet!
-                                        </CardTitle>
-                                        <CardDescription className="flex items-center gap-2">
-                                            <Badge variant="outline">{new Date().toLocaleDateString('vi-VN')}</Badge>
-                                            <Badge variant="outline">1h25m</Badge>
-                                        </CardDescription>
-                                        <CardDescription className="line-clamp-3">
-                                            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Assumenda, dolores
-                                            ipsam. Consectetur quod et eos commodi earum dolor rerum iure aliquam
-                                            consequatur, necessitatibus quis sequi! Nulla excepturi architecto ex
-                                            culpa.{' '}
-                                        </CardDescription>
+                                        <h3 className="font-semibold text-lg line-clamp-2 group-hover:text-primary transition-colors">
+                                            {movie.name}
+                                        </h3>
+
+                                        <p className="text-sm text-muted-foreground line-clamp-2">
+                                            {movie.description}
+                                        </p>
+
+                                        <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t">
+                                            <div className="flex items-center gap-1">
+                                                <Clock className="w-3 h-3" />
+                                                <span>{movie.duration}</span>
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <Calendar className="w-3 h-3" />
+                                                <span>
+                                                    {movie.releaseDate.toLocaleDateString('en-US', {
+                                                        month: 'short',
+                                                        day: 'numeric',
+                                                    })}
+                                                </span>
+                                            </div>
+                                        </div>
                                     </CardContent>
-                                    <div className="bg-primary/10 inline-flex gap-2 items-center absolute top-2 right-2 rounded-xl p-2">
-                                        <StarIcon
-                                            className={cn(
-                                                'size-4 fill-amber-500 stroke-amber-500 dark:fill-amber-400 dark:stroke-amber-400',
-                                            )}
-                                        />
-                                        <span className="font-bold text-sm">9.0</span>
-                                    </div>
-                                    <Badge variant="default" className="font-bold absolute top-2 left-2">
-                                        T16
-                                    </Badge>
                                 </Card>
                             </Link>
-                        </CarouselItem>
+                        </div>
                     ))}
-                </CarouselContent>
-                <CarouselPrevious className="left-0" />
-                <CarouselNext className="right-0" />
-            </Carousel>
+                </div>
+            </div>
         </section>
     );
 };

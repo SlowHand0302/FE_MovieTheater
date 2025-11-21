@@ -1,15 +1,21 @@
 'use client';
 
-import FeaturedSection from './components/FeaturedSection';
 import HeroBanner from './components/HeroBanner';
+import { MovieStatus } from '@/interfaces/Movie.interface';
+import FeaturedSection from './components/FeaturedSection';
+import { mockMovies } from '@/features/movie/constants/dummyData.constant';
+import { EventSection } from './components/EventSection';
 
 export default function Home() {
+    const comingSoonMovies = mockMovies.filter((movie) => movie.status === MovieStatus.COMING_SOON);
+    const nowShowingMovies = mockMovies.filter((movie) => movie.status === MovieStatus.SHOWING);
+
     return (
         <>
             <HeroBanner />
-            {Array.from({ length: 2 }).map((_, index) => {
-                return <FeaturedSection key={index} />;
-            })}
+            <FeaturedSection title="Now Showing" movies={[...nowShowingMovies, ...nowShowingMovies]} />
+            <FeaturedSection title="Coming Soon" movies={[...comingSoonMovies, ...comingSoonMovies]} />
+            <EventSection />
         </>
     );
 }

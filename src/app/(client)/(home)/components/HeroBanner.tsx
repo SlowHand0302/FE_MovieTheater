@@ -1,65 +1,140 @@
-import { useEffect, useState, useRef } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import {
-    Carousel,
-    CarouselContent,
-    CarouselItem,
-    CarouselNext,
-    CarouselPrevious,
-    type CarouselApi,
-} from '@/components/ui/carousel';
-import Autoplay from 'embla-carousel-autoplay';
+'use client';
+import React, { useEffect, useRef, useState } from 'react';
 
-export default function HeroBanner() {
-    const [carouselAPI, setCarouselAPI] = useState<CarouselApi>();
-    const [current, setCurrent] = useState(0);
-    const carouselPlugin = useRef(Autoplay({ delay: 2000, stopOnInteraction: true }));
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Calendar, ChevronRight, Clock, EllipsisVertical, Play } from 'lucide-react';
+
+import { Movie } from '@/interfaces/Movie.interface';
+import { Auditable } from '@/interfaces/Auditable.interface';
+import { mockMovies } from '@/features/movie/constants/dummyData.constant';
+
+type FeaturedMovie = Omit<Movie, keyof Auditable>;
+
+const HeroBanner = () => {
+    const movies: FeaturedMovie[] = mockMovies as FeaturedMovie[];
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    const nextSlide = () => {
+        setCurrentIndex((prev) => (prev + 1) % movies.length);
+    };
+
+    const prevSlide = () => {
+        setCurrentIndex((prev) => (prev - 1 + movies.length) % movies.length);
+    };
+
+    const goToSlide = (index: number) => {
+        setCurrentIndex(index);
+    };
+
+    // Auto-play with pause on hover
     useEffect(() => {
-        if (!carouselAPI) {
-            return;
-        }
-        setCurrent(carouselAPI.selectedScrollSnap());
-        carouselAPI.on('select', () => {
-            setCurrent(carouselAPI.selectedScrollSnap());
-        });
-    }, [carouselAPI]);
+        if (!isAutoPlaying) return;
 
+        timeoutRef.current = setInterval(() => {
+            nextSlide();
+        }, 6000); // Change every 6 seconds
+
+        return () => {
+            if (timeoutRef.current) clearInterval(timeoutRef.current);
+        };
+    }, [currentIndex, isAutoPlaying]);
+
+    const currentMovie = movies[currentIndex];
     return (
-        <section className="flex items-center justify-center flex-col relative">
-            <Carousel
-                className="w-full"
-                setApi={setCarouselAPI}
-                opts={{ align: 'center', loop: true }}
-                plugins={[carouselPlugin.current]}
-            >
-                <CarouselContent>
-                    {Array.from({ length: 5 }).map((_, index) => (
-                        <CarouselItem key={index}>
-                            <div className="p-1">
-                                <Card>
-                                    <CardContent className="flex h-[376px] items-center justify-center p-6">
-                                        <span className="text-4xl font-semibold">{index + 1}</span>
-                                    </CardContent>
-                                </Card>
-                            </div>
-                        </CarouselItem>
-                    ))}
-                </CarouselContent>
-                <CarouselPrevious className="left-0 translate-x-1/2" />
-                <CarouselNext className="right-0 -translate-x-1/2" />
-            </Carousel>
-            <div className="rounded-xl absolute bottom-0 bg-slate-500 flex gap-2 p-1 -translate-y-1/2">
-                {Array.from({ length: 5 }).map((item, index) => {
-                    return (
-                        <div
-                            key={index}
-                            className={`p-1 rounded-full bg-white transition-all ease-linear duration-100 ${
-                                current === index ? 'w-4' : 'w-0'
-                            }`}
-                        ></div>
-                    );
-                })}
+        <section
+            className="relative h-screen min-h-screen overflow-hidden -mx-5 px-4"
+            onMouseEnter={() => setIsAutoPlaying(false)}
+            onMouseLeave={() => setIsAutoPlaying(true)}
+        >
+            {/* Background Image with smooth transition */}
+            <div className="absolute inset-0">
+                {movies.map((movie, index) => (
+                    <div
+                        key={index}
+                        className="absolute inset-0 transition-opacity duration-1000 ease-in-out"
+                        style={{
+                            opacity: index === currentIndex ? 1 : 0,
+                            backgroundImage: `url(${movie.poster})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                        }}
+                    />
+                ))}
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/10 to-background/40" />
+            </div>
+
+            <div className="relative container px-4 h-full mx-auto flex items-center justify-center lg:justify-start gap-3 pb-16">
+                <img
+                    src={currentMovie.poster}
+                    alt={currentMovie.name}
+                    className="aspect-auto h-80 rounded-xl object-cover animate-in fade-in slide-in-from-left-4 duration-1000 hidden lg:block"
+                />
+                <div className="max-w-[80vw] animate-in flex flex-col justify-center lg:items-start items-center h-80 space-y-4 fade-in slide-in-from-bottom-4 duration-1000">
+                    <h1 className="text-5xl md:text-7xl lg:text-start text-center font-bold text-white text-shadow-lg">
+                        {currentMovie.name}
+                    </h1>
+                    <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                        <Badge className="flex items-center gap-2 rounded-sm">
+                            <Clock className="w-4 h-4" />
+                            <span>{currentMovie.duration}</span>
+                        </Badge>
+                        <Badge className="flex items-center gap-2 rounded-sm">
+                            <Calendar className="w-4 h-4" />
+                            <span>{currentMovie.releaseDate.toLocaleDateString()}</span>
+                        </Badge>
+                    </div>
+                    <div className="gap-2 flex-wrap lg:justify-start justify-center lg:flex hidden">
+                        {currentMovie.genres.map((genre) => (
+                            <Badge key={genre.id} variant="secondary" className="text-xs rounded-sm">
+                                {genre.name}
+                            </Badge>
+                        ))}
+                    </div>
+
+                    <p className="text-lg text-white text-shadow-lg lg:text-start text-center max-w-xl line-clamp-3 mb-auto lg:block hidden">
+                        {currentMovie.description}
+                    </p>
+
+                    <div className="flex gap-3">
+                        <Button size="lg" className="group">
+                            <Play className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
+                            Watch Trailer
+                        </Button>
+                        <Button size="lg" variant="outline">
+                            Book Tickets
+                            <ChevronRight className="w-5 h-5 ml-2" />
+                        </Button>
+                        <Button size="lg" variant="outline" className="hidden sm:block">
+                            <EllipsisVertical className="w-5 h-5" />
+                        </Button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Thumbnail Navigation */}
+            <div className="absolute bottom-20 md:right-10 right-1/2 md:translate-x-0 translate-x-1/2 flex gap-3">
+                {movies.map((movie, index) => (
+                    <button
+                        key={index}
+                        onClick={() => goToSlide(index)}
+                        className={`relative overflow-hidden rounded-lg transition-all duration-300 cursor-pointer ${
+                            index === currentIndex ? 'ring-2 ring-white scale-110' : 'opacity-70 hover:opacity-100'
+                        }`}
+                    >
+                        <img
+                            src={movie.poster}
+                            alt={movie.name}
+                            className="h-[60px] aspect-video object-cover rounded-md"
+                        />
+                        {/* {index === currentIndex && <div className="absolute inset-0 bg-white/30" />} */}
+                    </button>
+                ))}
             </div>
         </section>
     );
-}
+};
+
+export default HeroBanner;
