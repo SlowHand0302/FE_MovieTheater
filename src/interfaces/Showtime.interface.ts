@@ -13,7 +13,7 @@ export interface ShowTime extends Auditable {
     roomId: string;
     startTime: Date;
     endTime: Date;
-    status: string;
+    status: ShowTimeStatus;
     room: Room;
     showTimeSeats: ShowTimeSeat[];
 }
