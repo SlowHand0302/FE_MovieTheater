@@ -1,20 +1,24 @@
 'use client';
 
 import HeroBanner from './components/HeroBanner';
-import { MovieStatus } from '@/interfaces/Movie.interface';
 import FeaturedSection from './components/FeaturedSection';
-import { mockMovies } from '@/features/movie/constants/dummyData.constant';
 import { EventSection } from './components/EventSection';
+import { useMovieList } from '@/features/movie/queries';
+import { MovieBaseResultData } from '@/features/movie/DTOs/GetMovie.dto';
 
 export default function Home() {
-    const comingSoonMovies = mockMovies.filter((movie) => movie.status === MovieStatus.COMING_SOON);
-    const nowShowingMovies = mockMovies.filter((movie) => movie.status === MovieStatus.SHOWING);
+    const { data = [], isLoading, isError, error } = useMovieList({});
+
+    const movies = data as MovieBaseResultData[];
+
+    if (isLoading) return <div>Loading...</div>;
+    if (isError) return <div>Error: {error.message}</div>;
 
     return (
         <>
             <HeroBanner />
-            <FeaturedSection title="Now Showing" movies={[...nowShowingMovies, ...nowShowingMovies]} />
-            <FeaturedSection title="Coming Soon" movies={[...comingSoonMovies, ...comingSoonMovies]} />
+            <FeaturedSection title="Now Showing" movies={movies} />
+            <FeaturedSection title="Coming Soon" movies={movies} />
             <EventSection />
         </>
     );

@@ -4,11 +4,11 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import MovieCard from '../../components/MovieCard';
 
-import { Movie } from '@/interfaces/Movie.interface';
-import { Auditable } from '@/interfaces/Auditable.interface';
+import { MovieBaseResultData } from '@/features/movie/DTOs/GetMovie.dto';
+
 interface FeaturedSectionProps {
     title: string;
-    movies: Omit<Movie, keyof Auditable>[];
+    movies: MovieBaseResultData[];
 }
 
 const FeaturedSection = ({ title, movies }: FeaturedSectionProps) => {
@@ -26,7 +26,7 @@ const FeaturedSection = ({ title, movies }: FeaturedSectionProps) => {
                 <div className="flex gap-4 py-4 min-w-max">
                     {movies.map((movie, index) => (
                         <div key={index} className="w-60 flex-none">
-                            <Link href={'/movie/:id'} passHref>
+                            <Link href={`/movie/${movie.id}`} passHref>
                                 <MovieCard movie={movie} style={{ animationDelay: `${index * 100}ms` }} />
                             </Link>
                         </div>

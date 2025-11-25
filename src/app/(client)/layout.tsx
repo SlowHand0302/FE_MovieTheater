@@ -1,9 +1,10 @@
 import React, { ReactNode } from 'react';
 import { Header } from './components/Header';
+import { GlobalTrailerProvider } from '@/providers/TrailerContext.provider';
 
 const layout = ({ children }: { children: ReactNode }) => {
     return (
-        <>
+        <GlobalTrailerProvider>
             <Header></Header>
             <main className="mb-3 mx-5 max-w-[1850px] 2xl:mx-auto">{children}</main>
             {/* Footer */}
@@ -12,7 +13,7 @@ const layout = ({ children }: { children: ReactNode }) => {
                     <p>© 2024 Cine Inc Theater. All rights reserved.</p>
                 </div>
             </footer>
-        </>
+        </GlobalTrailerProvider>
     );
 };
 

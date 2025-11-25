@@ -1,5 +1,6 @@
 'use client';
 import React from 'react';
+import { useParams } from 'next/navigation';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -7,36 +8,20 @@ import { Separator } from '@/components/ui/separator';
 import ShowtimeSelector from './components/ShowTimeSelector';
 import { Play, Calendar, Clock, Globe, MapPin, Share2, Heart, Users, Info } from 'lucide-react';
 
-// Mock data based on interfaces
-const mockMovie = {
-    id: '1',
-    name: 'Neon Dreams',
-    description:
-        'A cyberpunk thriller set in a dystopian future where memories can be stolen and sold on the black market. When a skilled memory thief discovers a conspiracy that threatens to unravel society, she must choose between profit and redemption. As she delves deeper into the digital underworld, she realizes that some memories are worth more than just their monetary value.',
-    releaseDate: new Date('2024-12-15'),
-    duration: '142 min',
-    publisher: 'Future Films Studio',
-    country: 'USA',
-    language: 'English',
-    poster: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&h=1200&fit=crop',
-    trailerUrl: '#',
-    genres: [
-        { id: '1', name: 'Sci-Fi' },
-        { id: '2', name: 'Thriller' },
-        { id: '3', name: 'Action' },
-    ],
-    status: 'showing',
-    rating: 8.5,
-    director: 'Sarah Chen',
-    cast: [
-        { id: '1', movieId: '1', role: 'Director', name: 'Sarah Chen' },
-        { id: '2', movieId: '1', role: 'Lead Actor', name: 'Alex Rivera' },
-        { id: '3', movieId: '1', role: 'Lead Actress', name: 'Maya Johnson' },
-        { id: '4', movieId: '1', role: 'Supporting Actor', name: 'James Park' },
-    ],
-};
+import { useMovieById } from '@/features/movie/queries';
+import { MovieBaseResultData } from '@/features/movie/DTOs/GetMovie.dto';
+import { useTrailer } from '@/providers/TrailerContext.provider';
 
 export default function MovieDetailPage() {
+    const dynamicParams = useParams();
+    const movieId = dynamicParams.movieId;
+    const { openTrailer } = useTrailer();
+    const { data, isError, isLoading, error } = useMovieById(movieId?.toString());
+    const movie = data as MovieBaseResultData;
+
+    if (isLoading) return <div>Loading...</div>;
+    if (isError) return <div>Error: {error.message}</div>;
+
     return (
         <div className="space-y-6">
             <section className="relative overflow-hidden -mx-5 px-4">
@@ -44,7 +29,7 @@ export default function MovieDetailPage() {
                     <div
                         className="absolute inset-0 transition-opacity duration-1000 ease-in-out"
                         style={{
-                            backgroundImage: `url(${mockMovie.poster})`,
+                            backgroundImage: `url(data:image/jpeg;base64,${movie.poster})`,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center',
                         }}
@@ -53,10 +38,11 @@ export default function MovieDetailPage() {
                 </div>
                 <div className="relative px-4 mt-[12vh] flex md:items-start items-center justify-start md:gap-6 gap-0 md:flex-row flex-col">
                     <div>
-                        <div className="group relative">
+                        <div className="group relative" onClick={() => openTrailer(movie.trailerUrl as string)}>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
-                                src={mockMovie.poster}
-                                alt={mockMovie.name}
+                                src={`data:image/jpeg;base64,${movie.poster}`}
+                                alt={movie.name}
                                 className="aspect-auto md:w-90 w-56 rounded-xl object-cover animate-in fade-in slide-in-from-left-4 duration-1000 block"
                             />
 
@@ -79,28 +65,26 @@ export default function MovieDetailPage() {
                     </div>
 
                     <div className="flex-[60%] flex flex-col justify-center lg:items-start items-center space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-                        <h1 className="text-5xl md:text-7xl lg:text-start text-center font-bold text-shadow-lg">
-                            {mockMovie.name}
-                        </h1>
+                        <h1 className="text-5xl lg:text-start text-center font-bold text-shadow-lg">{movie.name}</h1>
                         <div className="flex items-center gap-3 text-sm text-muted-foreground">
                             <Badge className="flex items-center gap-2 rounded-sm">
                                 <Clock className="w-4 h-4" />
-                                <span>{mockMovie.duration}</span>
+                                <span>{movie.duration}</span>
                             </Badge>
                             <Badge className="flex items-center gap-2 rounded-sm">
                                 <Calendar className="w-4 h-4" />
-                                <span>{mockMovie.releaseDate.toLocaleDateString()}</span>
+                                <span>{movie.releaseDate.toString()}</span>
                             </Badge>
                         </div>
                         <div className="gap-2 flex-wrap lg:justify-start justify-center flex">
-                            {mockMovie.genres.map((genre) => (
-                                <Badge key={genre.id} variant="secondary" className="text-xs rounded-sm">
-                                    {genre.name}
+                            {movie.genres?.map((genre) => (
+                                <Badge key={genre.genreId} variant="secondary" className="text-xs rounded-sm">
+                                    {genre.genreName}
                                 </Badge>
                             ))}
                         </div>
 
-                        <p className="text-lg text-shadow-lg lg:text-start text-center">{mockMovie.description}</p>
+                        <p className="text-sm text-shadow-lg lg:text-start text-center">{movie.description}</p>
 
                         <Separator />
 
@@ -114,13 +98,17 @@ export default function MovieDetailPage() {
                                     <div className="space-y-4">
                                         <div>
                                             <h3 className="text-sm font-medium text-muted-foreground mb-1">Director</h3>
-                                            <p className="font-medium">{mockMovie.director}</p>
+                                            <p className="font-medium">
+                                                {movie.persons
+                                                    .filter((person) => person.role.toLowerCase() === 'director')
+                                                    .map((director) => director.fullName)}
+                                            </p>
                                         </div>
                                         <div>
                                             <h3 className="text-sm font-medium text-muted-foreground mb-1">
                                                 Publisher
                                             </h3>
-                                            <p className="font-medium">{mockMovie.publisher}</p>
+                                            <p className="font-medium">{movie.publisher}</p>
                                         </div>
                                     </div>
 
@@ -129,14 +117,14 @@ export default function MovieDetailPage() {
                                             <h3 className="text-sm font-medium text-muted-foreground mb-1">Language</h3>
                                             <div className="flex items-center gap-2">
                                                 <Globe className="w-4 h-4 text-muted-foreground" />
-                                                <p className="font-medium">{mockMovie.language}</p>
+                                                <p className="font-medium">{movie.language}</p>
                                             </div>
                                         </div>
                                         <div>
                                             <h3 className="text-sm font-medium text-muted-foreground mb-1">Country</h3>
                                             <div className="flex items-center gap-2">
                                                 <MapPin className="w-4 h-4 text-muted-foreground" />
-                                                <p className="font-medium">{mockMovie.country}</p>
+                                                <p className="font-medium">{movie.country}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -149,13 +137,13 @@ export default function MovieDetailPage() {
                                     Cast & Crew
                                 </h3>
                                 <div className="grid sm:grid-cols-2 gap-6">
-                                    {mockMovie.cast.map((person) => (
-                                        <div key={person.id} className="flex items-center gap-3">
+                                    {movie.persons.map((person) => (
+                                        <div key={person.personId} className="flex items-center gap-3">
                                             <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
                                                 <Users className="w-6 h-6 text-muted-foreground" />
                                             </div>
-                                            <div>
-                                                <p className="font-medium">{person.name}</p>
+                                            <div className="capitalize">
+                                                <p className="font-medium">{person.fullName}</p>
                                                 <p className="text-sm text-muted-foreground">{person.role}</p>
                                             </div>
                                         </div>

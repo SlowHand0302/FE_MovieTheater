@@ -4,11 +4,17 @@ import React, { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import MovieCard from '../components/MovieCard';
-import { mockMovies } from '@/features/movie/constants/dummyData.constant';
+import { MovieBaseResultData } from '@/features/movie/DTOs/GetMovie.dto';
+import { useMovieList } from '@/features/movie/queries';
 
 export default function MovieDetailPage() {
     const [activeTab, setActiveTab] = useState('showing');
-    const filteredMovies = mockMovies.filter((movie) => activeTab === 'all' || movie.status === activeTab);
+    const { data = [], isLoading, isError, error } = useMovieList(activeTab === 'all' ? {} : { Status: activeTab });
+
+    const movies = data as MovieBaseResultData[];
+
+    if (isLoading) return <div>Loading...</div>;
+    if (isError) return <div>Error: {error.message}</div>;
 
     return (
         <section className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 mt-20">
@@ -31,9 +37,9 @@ export default function MovieDetailPage() {
                 </div>
                 <div className="overflow-x-auto scrollbar-hidden">
                     <div className="flex gap-4 py-4 min-w-max">
-                        {filteredMovies.map((movie, index) => (
+                        {movies.map((movie, index) => (
                             <div key={index} className="w-60 flex-none">
-                                <Link href={`/movie/${movie.name}`} passHref>
+                                <Link href={`/movie/${movie.id}`} passHref>
                                     <MovieCard movie={movie} style={{ animationDelay: `${index * 100}ms` }} />
                                 </Link>
                             </div>
