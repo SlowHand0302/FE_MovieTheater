@@ -10,4 +10,5 @@ export interface User extends Auditable {
     gender: string;
     point: number;
     address: string;
+    isVerified: boolean;
 }

@@ -11,8 +11,8 @@ interface MovieQueryStrings {
     Status?: string;
 }
 // hooks/useMovieList.ts
-export const useMovieList = (filters: Omit<MovieQueryStrings, 'Id'> = {}) => {
-    const params = new URLSearchParams(filters as Omit<MovieQueryStrings, 'Id'>).toString();
+export const useMovieList = (filters: Partial<Record<keyof Omit<MovieQueryStrings, 'Id'>, string>> = {}) => {
+    const params = new URLSearchParams(filters).toString();
     return useQuery({
         queryKey: ['movie-list', filters],
         queryFn: () => apiClient.get<ApiResponse<MovieBaseResultData[]>>(`${MOVIE_ENDPOINT}s?${params}`),
