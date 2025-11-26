@@ -21,6 +21,7 @@ export default function SignupPage() {
                 </div>
             </div>
             <div className="bg-muted relative hidden lg:block">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                     src="https://ui.shadcn.com/placeholder.svg"
                     alt="Image"
