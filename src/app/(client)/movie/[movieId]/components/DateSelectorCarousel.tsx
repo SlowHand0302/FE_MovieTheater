@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { cn } from '@/lib/utils';
 
@@ -10,9 +10,11 @@ const formatDate = (date: Date): string => {
     return `${day}/${month}`;
 };
 
-const DateSelectorCarousel = () => {
+const DateSelectorCarousel = ({ value, onValueChange }: { onValueChange: (date: string) => void; value: string }) => {
     const [dates] = React.useState(() => getNextDays(new Date(), 7));
-    const [selectedDateIndex, setSelectedDateIndex] = React.useState(0);
+    const [selectedDateIndex, setSelectedDateIndex] = React.useState(
+        dates.findIndex((item) => item.fullDate === value.split('T')[0]),
+    );
 
     function getNextDays(startDate: Date, daysToAdd: number) {
         const today = new Date(startDate);
@@ -29,15 +31,19 @@ const DateSelectorCarousel = () => {
                 date,
                 label: isToday ? 'Hôm Nay' : formatDate(date),
                 dayOfWeek,
-                fullDate: date.toISOString().split('T')[0],
+                fullDate: date.toLocaleDateString().split('T')[0],
             };
         });
     }
 
+    useEffect(() => {
+        onValueChange(dates[selectedDateIndex].fullDate);
+    }, [selectedDateIndex]);
+
     return (
         <div className="overflow-x-scroll scrollbar-hidden max-w-full">
             <div className="flex w-full gap-2 items-start">
-                {[...dates, ...dates].map((d, index) => {
+                {[...dates].map((d, index) => {
                     const isSelected = index === selectedDateIndex;
 
                     return (
