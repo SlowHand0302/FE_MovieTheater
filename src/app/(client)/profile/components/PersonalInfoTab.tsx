@@ -1,17 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { User, Mail, Phone, Calendar, MapPin, Award } from 'lucide-react';
+import { User, Mail, Phone, Calendar, MapPin, Award, Edit2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 import { User as IUser } from '@/interfaces/User.interface';
+import { Button } from '@/components/ui/button';
+import ProfileForm from './ProfileForm';
 
 interface PersonalInfoTabProps {
     user: Omit<IUser, 'password' | 'createdBy' | 'isDeleted' | 'updatedBy'>;
 }
 
 const PersonalInfoTab = ({ user }: PersonalInfoTabProps) => {
+    const [openFormDialog, setOpenFormDialog] = useState<boolean>(false);
+
     const getLoyaltyTier = (points: number) => {
         if (points >= 5000) return { name: 'Platinum', color: 'bg-slate-900 text-white' };
         if (points >= 2500) return { name: 'Gold', color: 'bg-yellow-600 text-white' };
@@ -24,9 +28,15 @@ const PersonalInfoTab = ({ user }: PersonalInfoTabProps) => {
     return (
         <>
             <Card>
-                <CardHeader>
-                    <CardTitle>Personal Information</CardTitle>
-                    <CardDescription>Your personal details and contact information</CardDescription>
+                <CardHeader className="flex justify-between items-center">
+                    <div>
+                        <CardTitle>Personal Information</CardTitle>
+                        <CardDescription>Your personal details and contact information</CardDescription>
+                    </div>
+                    <Button variant="outline">
+                        <Edit2 className="sm:mr-2 mr-0 h-4 w-4" />
+                        <p className="sm:block hidden">Edit Profile</p>
+                    </Button>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -70,7 +80,7 @@ const PersonalInfoTab = ({ user }: PersonalInfoTabProps) => {
 
                         <div className="space-y-2">
                             <Label htmlFor="gender">Gender</Label>
-                            <Input id="gender" value={user.gender} disabled={true} />
+                            <Input id="gender" value={user.gender} disabled={true} className="capitalize" />
                         </div>
                     </div>
 
@@ -136,6 +146,8 @@ const PersonalInfoTab = ({ user }: PersonalInfoTabProps) => {
                     </div>
                 </CardContent>
             </Card>
+
+            <ProfileForm profile={user} openForm={openFormDialog} setOpenForm={setOpenFormDialog} />
         </>
     );
 };
