@@ -67,9 +67,9 @@ const MovieGenreForm = ({ genre, openForm, setOpenForm }: MovieGenreFormProps) =
         <Dialog open={openForm} onOpenChange={setOpenForm}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>{genre ? 'Edit' : 'Create new'} new Movie Genre</DialogTitle>
+                    <DialogTitle>{genre ? 'Edit this' : 'Create new'} movie genre</DialogTitle>
                     <DialogDescription>
-                        {genre ? 'Make changes to your Movie Genre' : 'Create new Movie Genre'} here. Click save when
+                        {genre ? 'Make changes to this movie genre' : 'Create new movie genre'} here. Click save when
                         you&apos;re done.
                     </DialogDescription>
                 </DialogHeader>

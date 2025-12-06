@@ -21,7 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 const cinemaFormSchema = z
     .object({
-        name: z.string().nonempty('Name required'),
+        name: z.string().nonempty('Name required').min(6, 'Name must have at least 6 characters'),
         address: z.string().nonempty('Address required'),
         phoneNumber: z
             .string()
@@ -97,10 +97,10 @@ const CinemaForm = ({ cinema, openForm, setOpenForm }: CinemaFormProps) => {
         <Dialog open={openForm} onOpenChange={setOpenForm}>
             <DialogContent className="max-w-[90vw] md:max-w-xl">
                 <DialogHeader>
-                    <DialogTitle>{cinema ? 'Edit' : 'Create new'} new Cinema</DialogTitle>
+                    <DialogTitle>{cinema ? 'Edit this' : 'Create new'} cinema</DialogTitle>
                     <DialogDescription>
-                        {cinema ? 'Make changes to your Room Type' : 'Create new Room Type'} here. Click save when
-                        you&apos;re done.
+                        {cinema ? 'Make changes to this cinema' : 'Create new cinema'} here. Click save when you&apos;re
+                        done.
                     </DialogDescription>
                 </DialogHeader>
                 <form

@@ -69,9 +69,9 @@ const SeatTypeForm = ({ seatType, openForm, setOpenForm }: SeatTypeFormProps) =>
         <Dialog open={openForm} onOpenChange={setOpenForm}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>{seatType ? 'Edit' : 'Create new'} Seat Type</DialogTitle>
+                    <DialogTitle>{seatType ? 'Edit this' : 'Create new'} seat type</DialogTitle>
                     <DialogDescription>
-                        {seatType ? 'Make changes to your Seat Type' : 'Create new Seat Type'} here. Click save when
+                        {seatType ? 'Make changes to this seat type' : 'Create new seat type'} here. Click save when
                         you&apos;re done.
                     </DialogDescription>
                 </DialogHeader>

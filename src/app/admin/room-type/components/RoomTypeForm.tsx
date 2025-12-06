@@ -69,9 +69,9 @@ const RoomTypeForm = ({ roomType, openForm, setOpenForm }: RoomTypeFormProps) =>
         <Dialog open={openForm} onOpenChange={setOpenForm}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>{roomType ? 'Edit' : 'Create new'} Room Type</DialogTitle>
+                    <DialogTitle>{roomType ? 'Edit this' : 'Create new'} room type</DialogTitle>
                     <DialogDescription>
-                        {roomType ? 'Make changes to your Room Type' : 'Create new Room Type'} here. Click save when
+                        {roomType ? 'Make changes to this room type' : 'Create new room type'} here. Click save when
                         you&apos;re done.
                     </DialogDescription>
                 </DialogHeader>

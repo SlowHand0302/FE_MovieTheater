@@ -104,9 +104,9 @@ const RoomForm = ({ room, openForm, setOpenForm }: RoomFormProps) => {
         <Dialog open={openForm} onOpenChange={setOpenForm}>
             <DialogContent className="max-w-[90vw] md:max-w-xl">
                 <DialogHeader>
-                    <DialogTitle>{room ? 'Edit' : 'Create new'} new Room</DialogTitle>
+                    <DialogTitle>{room ? 'Edit this' : 'Create new'} room</DialogTitle>
                     <DialogDescription>
-                        {room ? 'Make changes to your Room' : 'Create new Room'} here. Click save when you&apos;re done.
+                        {room ? 'Make changes to this room' : 'Create new room'} here. Click save when you&apos;re done.
                     </DialogDescription>
                 </DialogHeader>
                 <form
