@@ -14,16 +14,8 @@ import {
 } from '@/components/ui/sidebar';
 import NavGroup from './nav-group';
 import { IconInnerShadowTop } from '@tabler/icons-react';
-import { NavUser } from '@/app/admin/components/nav-user';
 import { navMain, navManagement, navSecondary } from '@/constants/adminSidebarItems.constant';
-
-const data = {
-    user: {
-        name: 'shadcn',
-        email: 'm@example.com',
-        avatar: '/avatars/shadcn.jpg',
-    },
-};
+import Account from '@/components/AccountDropdown';
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     return (
@@ -46,7 +38,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <NavGroup items={navSecondary} className="mt-auto" />
             </SidebarContent>
             <SidebarFooter>
-                <NavUser user={data.user} />
+                <Account />
             </SidebarFooter>
         </Sidebar>
     );

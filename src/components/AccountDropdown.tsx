@@ -1,6 +1,8 @@
-import { Sparkles, BadgeCheck, LogOut, Bell } from 'lucide-react';
+'use client';
+
 import React from 'react';
-import { Separator } from './ui/separator';
+import { usePathname, useRouter } from 'next/navigation';
+
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -9,29 +11,18 @@ import {
     DropdownMenuLabel,
     DropdownMenuTrigger,
 } from './ui/dropdown-menu';
+import { Separator } from './ui/separator';
+import { BadgeCheck, LogOut, Bell } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-
-const items = [
-    {
-        lable: 'Account',
-        url: '#',
-        icon: BadgeCheck,
-    },
-    {
-        lable: 'Notification',
-        url: '#',
-        icon: Bell,
-    },
-    {
-        lable: 'Log out',
-        url: '#',
-        icon: LogOut,
-    },
-];
+import { useLogoutMutation } from '@/features/auth/mutations';
 
 function Account() {
+    const router = useRouter();
+    const pathname = usePathname();
+    const { mutate } = useLogoutMutation();
+
     return (
-        <DropdownMenu>
+        <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
                 <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm cursor-pointer">
                     <Avatar className="h-8 w-8 rounded-full bg-gray-200 items-center justify-center flex">
@@ -58,18 +49,30 @@ function Account() {
                     </div>
                 </DropdownMenuLabel>
                 <Separator orientation="horizontal" className="bg-gray-200 w-full" />
-                {items.map((item, index) => {
-                    return (
-                        <React.Fragment key={index}>
-                            <DropdownMenuGroup>
-                                <DropdownMenuItem className="flex items-center justify-start gap-2 text-[14px] hover:bg-slate-100 hover:outline-none px-[16px] py-[10px] rounded-sm cursor-pointer">
-                                    <item.icon className="flex-shrink-0 size-4" />
-                                    {item.lable}
-                                </DropdownMenuItem>
-                            </DropdownMenuGroup>
-                        </React.Fragment>
-                    );
-                })}
+                <DropdownMenuGroup>
+                    <DropdownMenuItem
+                        onClick={() => router.push(pathname.includes('admin') ? '/admin/profile' : '/profile')}
+                        className="flex items-center justify-start gap-2 text-[14px] hover:bg-slate-100 hover:outline-none px-[16px] py-[10px] rounded-sm cursor-pointer"
+                    >
+                        <BadgeCheck className="flex-shrink-0 size-4" />
+                        Account
+                    </DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuGroup>
+                    <DropdownMenuItem className="flex items-center justify-start gap-2 text-[14px] hover:bg-slate-100 hover:outline-none px-[16px] py-[10px] rounded-sm cursor-pointer">
+                        <Bell className="flex-shrink-0 size-4" />
+                        Notification
+                    </DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuGroup>
+                    <DropdownMenuItem
+                        onClick={() => mutate()}
+                        className="flex items-center justify-start gap-2 text-[14px] hover:bg-slate-100 hover:outline-none px-[16px] py-[10px] rounded-sm cursor-pointer"
+                    >
+                        <LogOut className="flex-shrink-0 size-4" />
+                        Logout
+                    </DropdownMenuItem>
+                </DropdownMenuGroup>
             </DropdownMenuContent>
         </DropdownMenu>
     );
