@@ -68,9 +68,12 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'form'>)
                         <Field data-invalid={fieldState.invalid} className="gap-1">
                             <div className="flex items-center">
                                 <FieldLabel htmlFor="login-password">Password</FieldLabel>
-                                <a href="#" className="ml-auto text-sm underline-offset-4 hover:underline">
+                                <Link
+                                    href="/forgot-password"
+                                    className="ml-auto text-sm underline-offset-4 hover:underline"
+                                >
                                     Forgot your password?
-                                </a>
+                                </Link>
                             </div>
                             <InputGroup>
                                 <InputGroupInput
