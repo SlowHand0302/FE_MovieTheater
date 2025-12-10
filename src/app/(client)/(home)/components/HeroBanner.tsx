@@ -64,7 +64,7 @@ const HeroBanner = () => {
                         className="absolute inset-0 transition-opacity duration-1000 ease-in-out"
                         style={{
                             opacity: index === currentIndex ? 1 : 0,
-                            backgroundImage: `url(data:image/jpeg;base64,${movie.poster})`,
+                            backgroundImage: `url(${movie.poster})`,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center',
                         }}
@@ -76,7 +76,7 @@ const HeroBanner = () => {
             <div className="relative container px-4 h-full mx-auto flex items-center justify-center lg:justify-start gap-3 pb-16">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                    src={`data:image/jpeg;base64,${currentMovie.poster}`}
+                    src={`${currentMovie.poster}`}
                     alt={currentMovie.name}
                     className="aspect-auto h-95 rounded-xl object-cover animate-in fade-in slide-in-from-left-4 duration-1000 hidden lg:block"
                 />
@@ -145,7 +145,7 @@ const HeroBanner = () => {
                     >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
-                            src={`data:image/jpeg;base64,${movie.poster}`}
+                            src={`${movie.poster}`}
                             alt={movie.name}
                             className="h-[60px] aspect-video object-cover rounded-md"
                         />

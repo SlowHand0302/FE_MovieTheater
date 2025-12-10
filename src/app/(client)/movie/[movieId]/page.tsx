@@ -29,7 +29,7 @@ export default function MovieDetailPage() {
                     <div
                         className="absolute inset-0 transition-opacity duration-1000 ease-in-out"
                         style={{
-                            backgroundImage: `url(data:image/jpeg;base64,${movie.poster})`,
+                            backgroundImage: `url(${movie.poster})`,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center',
                         }}
@@ -41,7 +41,7 @@ export default function MovieDetailPage() {
                         <div className="group relative" onClick={() => openTrailer(movie.trailerUrl as string)}>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
-                                src={`data:image/jpeg;base64,${movie.poster}`}
+                                src={`${movie.poster}`}
                                 alt={movie.name}
                                 className="aspect-auto md:w-90 w-56 rounded-xl object-cover animate-in fade-in slide-in-from-left-4 duration-1000 block"
                             />

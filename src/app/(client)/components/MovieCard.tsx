@@ -31,7 +31,7 @@ const MovieCard = ({ movie, className, ...props }: MovieCardProps) => {
             <CardHeader className="relative aspect-[2/3] overflow-hidden px-0 gap-0">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                    src={`data:image/jpeg;base64,${movie.poster}`}
+                    src={`${movie.poster}`}
                     alt={movie.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 />
