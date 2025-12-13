@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { User } from '@/interfaces/User.interface';
-import { authStorage } from '@/lib/authStorage';
 
 interface AuthState {
     user: User | null;
@@ -12,7 +11,6 @@ interface AuthState {
     setVerifyId: (id: string | null) => void;
     setUser: (user: User | null) => void;
     logout: () => void;
-    hydrate: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -23,7 +21,6 @@ export const useAuthStore = create<AuthState>()(
             accessToken: null,
             refreshToken: null,
             setTokens(access, refresh) {
-                authStorage.setTokens(access, refresh);
                 set({ accessToken: access, refreshToken: refresh });
             },
             setVerifyId(id) {
@@ -33,17 +30,16 @@ export const useAuthStore = create<AuthState>()(
                 set({ user });
             },
             logout() {
-                set({ user: null, accessToken: null, refreshToken: null });
-                authStorage.clearTokens();
-            },
-            hydrate() {
-                const access = authStorage.getAccessToken();
-                const refresh = authStorage.getRefreshToken();
-                set({ accessToken: access, refreshToken: refresh });
+                set({ user: null, accessToken: null, refreshToken: null, verifyId: null });
             },
         }),
         {
             name: 'auth-store',
+            // Optionally: only persist tokens, not user data
+            partialize: (state) => ({
+                accessToken: state.accessToken,
+                refreshToken: state.refreshToken,
+            }),
         },
     ),
 );
