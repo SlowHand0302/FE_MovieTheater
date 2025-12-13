@@ -5,16 +5,14 @@ import { Label } from '@/components/ui/label';
 import { User, Mail, Phone, Calendar, MapPin, Award, Edit2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
-import { User as IUser } from '@/interfaces/User.interface';
 import { Button } from '@/components/ui/button';
 import ProfileForm from './ProfileForm';
+import { useAuthStore } from '@/features/auth/useAuthStore';
 
-interface PersonalInfoTabProps {
-    user: Omit<IUser, 'password' | 'createdBy' | 'isDeleted' | 'updatedBy'>;
-}
-
-const PersonalInfoTab = ({ user }: PersonalInfoTabProps) => {
+const PersonalInfoTab = () => {
+    const { user } = useAuthStore();
     const [openFormDialog, setOpenFormDialog] = useState<boolean>(false);
+    const userPoints = user?.points || 0;
 
     const getLoyaltyTier = (points: number) => {
         if (points >= 5000) return { name: 'Platinum', color: 'bg-slate-900 text-white' };
@@ -23,7 +21,7 @@ const PersonalInfoTab = ({ user }: PersonalInfoTabProps) => {
         return { name: 'Bronze', color: 'bg-amber-700 text-white' };
     };
 
-    const tier = getLoyaltyTier(user.point);
+    const tier = getLoyaltyTier(user?.points || 0);
 
     return (
         <>
@@ -33,7 +31,7 @@ const PersonalInfoTab = ({ user }: PersonalInfoTabProps) => {
                         <CardTitle>Personal Information</CardTitle>
                         <CardDescription>Your personal details and contact information</CardDescription>
                     </div>
-                    <Button variant="outline">
+                    <Button variant="outline" onClick={() => setOpenFormDialog(true)}>
                         <Edit2 className="sm:mr-2 mr-0 h-4 w-4" />
                         <p className="sm:block hidden">Edit Profile</p>
                     </Button>
@@ -44,7 +42,7 @@ const PersonalInfoTab = ({ user }: PersonalInfoTabProps) => {
                             <Label htmlFor="fullname">Full Name</Label>
                             <div className="relative">
                                 <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                                <Input id="fullname" value={user.fullname} disabled={true} className="pl-10" />
+                                <Input id="fullname" value={user?.fullName} disabled={true} className="pl-10" />
                             </div>
                         </div>
 
@@ -52,7 +50,13 @@ const PersonalInfoTab = ({ user }: PersonalInfoTabProps) => {
                             <Label htmlFor="email">Email Address</Label>
                             <div className="relative">
                                 <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                                <Input id="email" type="email" value={user.email} disabled={true} className="pl-10" />
+                                <Input
+                                    id="email"
+                                    type="email"
+                                    value={user?.email ? user.email : 'Updating...'}
+                                    disabled={true}
+                                    className="pl-10"
+                                />
                             </div>
                         </div>
 
@@ -60,7 +64,12 @@ const PersonalInfoTab = ({ user }: PersonalInfoTabProps) => {
                             <Label htmlFor="phone">Phone Number</Label>
                             <div className="relative">
                                 <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                                <Input id="phone" value={user.phoneNumber} disabled={true} className="pl-10" />
+                                <Input
+                                    id="phone"
+                                    value={user?.phoneNumber ? user.phoneNumber : 'Updating...'}
+                                    disabled={true}
+                                    className="pl-10"
+                                />
                             </div>
                         </div>
 
@@ -70,8 +79,11 @@ const PersonalInfoTab = ({ user }: PersonalInfoTabProps) => {
                                 <Calendar className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                                 <Input
                                     id="dob"
-                                    type="date"
-                                    value={new Date(user.dayOfBirth).toISOString().split('T')[0]}
+                                    value={
+                                        user?.dayOfBirth
+                                            ? new Date(user.dayOfBirth).toISOString().split('T')[0]
+                                            : 'Updating...'
+                                    }
                                     disabled={true}
                                     className="pl-10"
                                 />
@@ -80,7 +92,12 @@ const PersonalInfoTab = ({ user }: PersonalInfoTabProps) => {
 
                         <div className="space-y-2">
                             <Label htmlFor="gender">Gender</Label>
-                            <Input id="gender" value={user.gender} disabled={true} className="capitalize" />
+                            <Input
+                                id="gender"
+                                value={user?.gender ? user.gender : 'Updating...'}
+                                disabled={true}
+                                className="capitalize"
+                            />
                         </div>
                     </div>
 
@@ -88,7 +105,12 @@ const PersonalInfoTab = ({ user }: PersonalInfoTabProps) => {
                         <Label htmlFor="address">Address</Label>
                         <div className="relative">
                             <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                            <Input id="address" value={user.address} disabled={true} className="pl-10" />
+                            <Input
+                                id="address"
+                                value={user?.address ? user.address : 'Updating...'}
+                                disabled={true}
+                                className="pl-10"
+                            />
                         </div>
                     </div>
                 </CardContent>
@@ -107,13 +129,13 @@ const PersonalInfoTab = ({ user }: PersonalInfoTabProps) => {
                                 <div>
                                     <p className="font-medium">Current Tier: {tier.name}</p>
                                     <p className="text-sm text-muted-foreground">
-                                        {user.point >= 5000
+                                        {userPoints >= 5000
                                             ? 'You are at the highest tier!'
-                                            : `${(tier.name === 'Gold' ? 5000 : tier.name === 'Silver' ? 2500 : 1000) - user.point} points to next tier`}
+                                            : `${(tier.name === 'Gold' ? 5000 : tier.name === 'Silver' ? 2500 : 1000) - userPoints} points to next tier`}
                                     </p>
                                 </div>
                             </div>
-                            <p className="text-2xl font-bold">{user.point}</p>
+                            <p className="text-2xl font-bold">{user?.points}</p>
                         </div>
 
                         <div className="space-y-2">
@@ -129,16 +151,16 @@ const PersonalInfoTab = ({ user }: PersonalInfoTabProps) => {
                                             : 'Silver'}
                                 </span>
                                 <span>
-                                    {user.point >= 5000
+                                    {userPoints >= 5000
                                         ? '100%'
-                                        : `${Math.round((user.point / (tier.name === 'Gold' ? 5000 : tier.name === 'Silver' ? 2500 : 1000)) * 100)}%`}
+                                        : `${Math.round((userPoints / (tier.name === 'Gold' ? 5000 : tier.name === 'Silver' ? 2500 : 1000)) * 100)}%`}
                                 </span>
                             </div>
                             <div className="h-2 bg-muted rounded-full overflow-hidden">
                                 <div
                                     className="h-full bg-primary transition-all"
                                     style={{
-                                        width: `${user.point >= 5000 ? 100 : Math.min((user.point / (tier.name === 'Gold' ? 5000 : tier.name === 'Silver' ? 2500 : 1000)) * 100, 100)}%`,
+                                        width: `${userPoints >= 5000 ? 100 : Math.min((userPoints / (tier.name === 'Gold' ? 5000 : tier.name === 'Silver' ? 2500 : 1000)) * 100, 100)}%`,
                                     }}
                                 />
                             </div>
@@ -147,7 +169,7 @@ const PersonalInfoTab = ({ user }: PersonalInfoTabProps) => {
                 </CardContent>
             </Card>
 
-            <ProfileForm profile={user} openForm={openFormDialog} setOpenForm={setOpenFormDialog} />
+            <ProfileForm openForm={openFormDialog} setOpenForm={setOpenFormDialog} />
         </>
     );
 };

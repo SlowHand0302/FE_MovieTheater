@@ -1,36 +1,19 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 
 import { User } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-import { User as IUser } from '@/interfaces/User.interface';
-
 import HistoryTab from './components/HistoryTab';
 import PersonalInfoTab from './components/PersonalInfoTab';
 import AccountDetailsTab from './components/AccountDetailsTab';
-
-// Mock user data based on your interface
-const mockUser: Omit<IUser, 'password' | 'createdBy' | 'isDeleted' | 'updatedBy'> = {
-    id: '123e4567-e89b-12d3-a456-426614174000',
-    fullname: 'Sarah Johnson',
-    email: 'sarah.johnson@email.com',
-    phoneNumber: '+1 (555) 123-4567',
-    dayOfBirth: new Date('1990-05-15'),
-    gender: 'female',
-    point: 2850,
-    address: '123 Broadway Street, New York, NY 10001',
-    role: 'customer',
-    isVerified: true,
-    createdAt: new Date('2023-01-15'),
-    updatedAt: new Date('2024-11-20'),
-};
+import { useAuthStore } from '@/features/auth/useAuthStore';
 
 export default function CustomerProfile() {
-    const [userData, setUserData] = useState(mockUser);
+    const { user: userData } = useAuthStore();
 
     const getLoyaltyTier = (points: number) => {
         if (points >= 5000) return { name: 'Platinum', color: 'bg-slate-900 text-white' };
@@ -39,7 +22,11 @@ export default function CustomerProfile() {
         return { name: 'Bronze', color: 'bg-amber-700 text-white' };
     };
 
-    const tier = getLoyaltyTier(userData.point);
+    const tier = getLoyaltyTier(userData?.points || 0);
+
+    if (!userData) {
+        return null;
+    }
 
     return (
         <div className="min-h-screen bg-background mt-20">
@@ -53,10 +40,10 @@ export default function CustomerProfile() {
                                     <User className="h-8 w-8 text-primary" />
                                 </div>
                                 <div>
-                                    <CardTitle className="text-2xl">{userData.fullname}</CardTitle>
+                                    <CardTitle className="text-2xl">{userData?.fullName}</CardTitle>
                                     <div className="flex items-center gap-2 mt-1">
-                                        <Badge variant={userData.isVerified ? 'default' : 'secondary'}>
-                                            {userData.isVerified ? 'Verified' : 'Unverified'}
+                                        <Badge variant={userData?.isVerified ? 'default' : 'secondary'}>
+                                            {userData?.isVerified ? 'Verified' : 'Unverified'}
                                         </Badge>
                                         <Badge className={tier.color}>{tier.name} Member</Badge>
                                     </div>
@@ -64,7 +51,9 @@ export default function CustomerProfile() {
                             </div>
                             <div className="text-right flex items-center sm:gap-0 gap-5 sm:flex-col flex-row">
                                 <p className="sm:text-sm text-xl text-muted-foreground">Reward Points:</p>
-                                <p className="text-3xl font-bold text-primary">{userData.point.toLocaleString()}</p>
+                                <p className="text-3xl font-bold text-primary">
+                                    {userData?.points?.toLocaleString() || 0}
+                                </p>
                             </div>
                         </div>
                     </CardHeader>
@@ -87,7 +76,7 @@ export default function CustomerProfile() {
                     </TabsList>
 
                     <TabsContent value="personal" className="space-y-4">
-                        <PersonalInfoTab user={mockUser} />
+                        <PersonalInfoTab />
                     </TabsContent>
 
                     <TabsContent value="tickets" className="space-y-4">
@@ -95,7 +84,7 @@ export default function CustomerProfile() {
                     </TabsContent>
 
                     <TabsContent value="account" className="space-y-4">
-                        <AccountDetailsTab user={mockUser} />
+                        <AccountDetailsTab />
                     </TabsContent>
                 </Tabs>
             </div>

@@ -2,14 +2,16 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Clock } from 'lucide-react';
-import { User } from '@/interfaces/User.interface';
 import { Badge } from '@/components/ui/badge';
+import { useAuthStore } from '@/features/auth/useAuthStore';
 
-interface AccountDetailsTab {
-    user: Omit<User, 'password' | 'createdBy' | 'isDeleted' | 'updatedBy'>;
-}
+const AccountDetailsTab = () => {
+    const { user } = useAuthStore();
+    let formatted;
+    if (user) {
+        formatted = { ...user, id: Object.entries(user).find(([key, _]) => key === 'userId')?.[1] };
+    }
 
-const AccountDetailsTab = ({ user }: AccountDetailsTab) => {
     const formatDate = (date: Date) => {
         return new Date(date).toLocaleDateString('en-US', {
             year: 'numeric',
@@ -29,13 +31,13 @@ const AccountDetailsTab = ({ user }: AccountDetailsTab) => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1">
                             <p className="text-sm font-medium text-muted-foreground">Account ID</p>
-                            <p className="font-mono text-sm">{user.id}</p>
+                            <p className="font-mono text-sm">{formatted?.id}</p>
                         </div>
 
                         <div className="space-y-1">
                             <p className="text-sm font-medium text-muted-foreground">Role</p>
                             <Badge variant="outline" className="capitalize">
-                                {user.role}
+                                {formatted?.role}
                             </Badge>
                         </div>
 
@@ -44,7 +46,9 @@ const AccountDetailsTab = ({ user }: AccountDetailsTab) => {
                                 <Clock className="h-4 w-4" />
                                 Member Since
                             </p>
-                            <p className="text-sm">{formatDate(user.createdAt)}</p>
+                            <p className="text-sm">
+                                {formatted?.createdAt ? formatDate(formatted.createdAt) : 'Updating...'}
+                            </p>
                         </div>
 
                         <div className="space-y-1">
@@ -52,17 +56,19 @@ const AccountDetailsTab = ({ user }: AccountDetailsTab) => {
                                 <Clock className="h-4 w-4" />
                                 Last Updated
                             </p>
-                            <p className="text-sm">{formatDate(user.updatedAt)}</p>
+                            <p className="text-sm">
+                                {formatted?.updatedAt ? formatDate(formatted.updatedAt) : 'Updating...'}
+                            </p>
                         </div>
 
                         <div className="space-y-1">
                             <p className="text-sm font-medium text-muted-foreground">Verification Status</p>
                             <div className="flex items-center gap-2">
                                 <div
-                                    className={`h-2 w-2 rounded-full ${user.isVerified ? 'bg-green-500' : 'bg-yellow-500'}`}
+                                    className={`h-2 w-2 rounded-full ${formatted?.isVerified ? 'bg-green-500' : 'bg-yellow-500'}`}
                                 />
                                 <p className="text-sm">
-                                    {user.isVerified ? 'Verified Account' : 'Pending Verification'}
+                                    {formatted?.isVerified ? 'Verified Account' : 'Pending Verification'}
                                 </p>
                             </div>
                         </div>

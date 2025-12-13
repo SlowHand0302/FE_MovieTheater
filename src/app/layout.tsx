@@ -5,6 +5,7 @@ import { ReactQueryProvider } from '@/providers/ReactQuery.provider';
 import { ConfirmProvider } from '@/providers/ConfirmContext.provider';
 
 import './globals.css';
+import AuthInitializer from '@/components/AuthInitializer';
 
 const geistSans = Geist({
     variable: '--font-geist-sans',
@@ -30,6 +31,7 @@ export default function RootLayout({
         <html lang="en">
             <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
                 <ReactQueryProvider>
+                    <AuthInitializer />
                     <ConfirmProvider>{children}</ConfirmProvider>
                 </ReactQueryProvider>
                 <Toaster />

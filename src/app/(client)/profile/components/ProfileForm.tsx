@@ -4,9 +4,6 @@ import React, { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { User } from '@/interfaces/User.interface';
-import { Auditable } from '@/interfaces/Auditable.interface';
-
 import {
     Dialog,
     DialogClose,
@@ -21,9 +18,10 @@ import { Button } from '@/components/ui/button';
 import DatePicker from '@/components/DatePicker';
 import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useAuthStore } from '@/features/auth/useAuthStore';
 
 const profileFormSchema = z.object({
-    fullname: z.string().nonempty('Fullname required').min(6, 'Full name must have at least 6 characters'),
+    fullName: z.string().nonempty('FullName required').min(6, 'Full name must have at least 6 characters'),
     email: z.email('Invalid email format').nonempty('Email required'),
     password: z.string().nonempty('Password required'),
     phoneNumber: z
@@ -36,16 +34,17 @@ const profileFormSchema = z.object({
 });
 
 interface ProfileFormProps {
-    profile?: Omit<User, keyof Auditable | 'isVerified' | 'point' | 'role' | 'password'>;
     openForm: boolean;
     setOpenForm: (isOpen: boolean) => void;
 }
 
-const ProfileForm = ({ profile, openForm, setOpenForm }: ProfileFormProps) => {
+const ProfileForm = ({ openForm, setOpenForm }: ProfileFormProps) => {
+    const { user } = useAuthStore();
+
     const form = useForm<z.infer<typeof profileFormSchema>>({
         resolver: zodResolver(profileFormSchema),
         defaultValues: {
-            fullname: '',
+            fullName: '',
             email: '',
             password: '',
             phoneNumber: '',
@@ -77,10 +76,10 @@ const ProfileForm = ({ profile, openForm, setOpenForm }: ProfileFormProps) => {
 
     useEffect(() => {
         if (!openForm) return;
-        const defaultVal = profile
-            ? { ...profile }
+        const defaultVal = user
+            ? { ...user }
             : {
-                  fullname: '',
+                  fullName: '',
                   email: '',
                   password: '',
                   phoneNumber: '',
@@ -89,16 +88,16 @@ const ProfileForm = ({ profile, openForm, setOpenForm }: ProfileFormProps) => {
                   address: '',
               };
         form.reset(defaultVal);
-    }, [profile, openForm, form]);
+    }, [user, openForm, form]);
 
     return (
         <Dialog open={openForm} onOpenChange={setOpenForm}>
             <DialogContent className="max-w-[90vw] md:max-w-xl">
                 <DialogHeader>
-                    <DialogTitle>{profile ? 'Edit your' : 'Create new'} profile</DialogTitle>
+                    <DialogTitle>{user ? 'Edit your' : 'Create new'} profile</DialogTitle>
                     <DialogDescription>
-                        {profile ? 'Make changes to your Profile' : 'Create new Profile'} here. Click save when
-                        you&apos;re done.
+                        {user ? 'Make changes to your Profile' : 'Create new Profile'} here. Click save when you&apos;re
+                        done.
                     </DialogDescription>
                 </DialogHeader>
                 <form
@@ -108,14 +107,14 @@ const ProfileForm = ({ profile, openForm, setOpenForm }: ProfileFormProps) => {
                 >
                     <FieldGroup className="gap-3">
                         <Controller
-                            name="fullname"
+                            name="fullName"
                             control={form.control}
                             render={({ field, fieldState }) => (
                                 <Field data-invalid={fieldState.invalid} className="gap-1">
-                                    <FieldLabel htmlFor="profile-fullname">Fullname</FieldLabel>
+                                    <FieldLabel htmlFor="profile-fullName">FullName</FieldLabel>
                                     <Input
                                         {...field}
-                                        id="profile-fullname"
+                                        id="profile-fullName"
                                         aria-invalid={fieldState.invalid}
                                         placeholder="Aa..."
                                         autoComplete="off"
