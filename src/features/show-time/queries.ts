@@ -2,13 +2,12 @@ import { apiClient } from '@/lib/apiClient';
 import { ApiResponse } from '@/types/ApiResponse.type';
 import { useQuery } from '@tanstack/react-query';
 import { SHOW_TIME_ENDPOINT, SHOW_TIME_SEAT_ENDPOINT } from './constants';
-import { ShowTimeSeat } from '@/interfaces/ShowTimeSeat.interface';
 import { ShowTimeResult } from './DTOs/GetShowTimes.dto';
 import { ShowTimeSeatResult } from './DTOs/GetShowTimeSeat.dto';
 
 interface ShowTimeQueryString {
     Date: string;
-    Country: string;
+    City: string;
     [key: string]: string;
 }
 
@@ -24,7 +23,9 @@ export const useShowTimesByMovie = ({
         queryKey: ['showtimes', movieId, queryString],
         queryFn: async () => {
             const params = new URLSearchParams(queryString).toString();
-            return await apiClient.get<ApiResponse<ShowTimeResult[]>>(`${SHOW_TIME_ENDPOINT}s/${movieId}?${params}`);
+            return await apiClient.get<ApiResponse<ShowTimeResult[]>>(
+                `${SHOW_TIME_ENDPOINT}s/by-movie/${movieId}?${params}`,
+            );
         },
         select: (d) => d.data,
         enabled: !!movieId,

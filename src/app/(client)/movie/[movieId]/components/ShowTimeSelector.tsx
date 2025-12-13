@@ -26,7 +26,7 @@ export default function ShowTimeSelector() {
     } = useShowTimesByMovie({
         movieId,
         queryString: {
-            Country: selectedCountry,
+            City: '',
             Date: selectedDate,
         },
     });
