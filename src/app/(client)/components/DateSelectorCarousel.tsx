@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
 import { cn } from '@/lib/utils';
 
@@ -11,10 +11,9 @@ const formatDate = (date: Date): string => {
 };
 
 const DateSelectorCarousel = ({ value, onValueChange }: { onValueChange: (date: string) => void; value: string }) => {
-    const [dates] = React.useState(() => getNextDays(new Date(), 7));
-    const [selectedDateIndex, setSelectedDateIndex] = React.useState(
-        dates.findIndex((item) => item.fullDate === value.split('T')[0]),
-    );
+    const dates = React.useMemo(() => getNextDays(new Date(), 7), []);
+
+    const selectedDateIndex = React.useMemo(() => dates.findIndex((d) => d.fullDate === value), [dates, value]);
 
     function getNextDays(startDate: Date, daysToAdd: number) {
         const today = new Date(startDate);
@@ -36,10 +35,6 @@ const DateSelectorCarousel = ({ value, onValueChange }: { onValueChange: (date: 
         });
     }
 
-    useEffect(() => {
-        onValueChange(dates[selectedDateIndex].fullDate);
-    }, [selectedDateIndex]);
-
     return (
         <div className="overflow-x-scroll scrollbar-hidden max-w-full">
             <div className="flex w-full gap-2 items-start">
@@ -49,7 +44,7 @@ const DateSelectorCarousel = ({ value, onValueChange }: { onValueChange: (date: 
                     return (
                         <button
                             key={index}
-                            onClick={() => setSelectedDateIndex(index)}
+                            onClick={() => onValueChange(d.fullDate)}
                             className={cn(
                                 'flex flex-col items-center px-4 py-3 rounded-lg min-w-28',
                                 isSelected

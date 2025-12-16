@@ -6,7 +6,7 @@ import { MovieBaseResultData } from './DTOs/GetMovie.dto';
 
 interface MovieQueryStrings {
     Id?: string;
-    Country?: string;
+    City?: string;
     Name?: string;
     Status?: string;
 }
