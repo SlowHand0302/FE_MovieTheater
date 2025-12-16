@@ -45,7 +45,7 @@ export function Header() {
                         </Link>
                     </NavigationMenuLink>
                 </NavigationMenuItem>
-                <NavigationMenuItem className="hidden md:block">
+                <NavigationMenuItem className="hidden lg:block">
                     <NavigationMenuTrigger className="bg-transparent hover:bg-transparent focus:bg-transparent">
                         Danh sách phim
                     </NavigationMenuTrigger>
@@ -62,7 +62,7 @@ export function Header() {
                         </ul>
                     </NavigationMenuContent>
                 </NavigationMenuItem>
-                <NavigationMenuItem className="hidden md:block">
+                <NavigationMenuItem className="hidden lg:block">
                     <NavigationMenuLink
                         asChild
                         className={cn(
@@ -73,7 +73,7 @@ export function Header() {
                         <Link href="/movie">Sự kiện và Tin Tức</Link>
                     </NavigationMenuLink>
                 </NavigationMenuItem>
-                <NavigationMenuItem className="hidden md:block">
+                <NavigationMenuItem className="hidden lg:block">
                     <NavigationMenuLink
                         asChild
                         className={cn(
@@ -81,7 +81,7 @@ export function Header() {
                             'bg-transparent hover:bg-transparent focus:bg-transparent',
                         )}
                     >
-                        <Link href="/movie">Rạp và Giá Vé</Link>
+                        <Link href="/cinema">Rạp</Link>
                     </NavigationMenuLink>
                 </NavigationMenuItem>
             </NavigationMenuList>
