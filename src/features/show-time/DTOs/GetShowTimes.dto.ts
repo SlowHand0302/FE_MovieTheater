@@ -1,7 +1,14 @@
-export interface ShowTimeResult {
+export interface ShowTimeByMovieResult {
     cinemaId: string;
     cinemaName: string;
     address: string;
+    roomTypes: RoomTypeResult[];
+}
+
+export interface ShowTimeByCinemaResult {
+    movieId: string;
+    movieName: string;
+    poster: string;
     roomTypes: RoomTypeResult[];
 }
 

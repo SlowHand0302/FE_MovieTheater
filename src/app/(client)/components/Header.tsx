@@ -53,10 +53,10 @@ export function Header() {
                         <ul className="grid w-[200px] gap-4">
                             <li>
                                 <NavigationMenuLink asChild>
-                                    <Link href="/movie">Phim đang chiếu</Link>
+                                    <Link href="/movie?status=showing">Phim đang chiếu</Link>
                                 </NavigationMenuLink>
                                 <NavigationMenuLink asChild>
-                                    <Link href="/movie">Phim sắp chiếu</Link>
+                                    <Link href="/movie?status=coming_soon">Phim sắp chiếu</Link>
                                 </NavigationMenuLink>
                             </li>
                         </ul>

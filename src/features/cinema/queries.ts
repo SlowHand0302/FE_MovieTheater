@@ -18,5 +18,6 @@ export const useCinemas = (queryString: CinemaQueryStrings) => {
             return apiClient.get<ApiResponse<Cinema[]>>(`${CINEMA_ENDPOINT}s?${JSON.stringify(queryString)}`);
         },
         enabled: !!queryString,
+        select: (d) => d.data,
     });
 };
