@@ -10,9 +10,10 @@ import React, { ComponentProps } from 'react';
 
 interface MovieCardProps extends ComponentProps<typeof Card> {
     movie: MovieBaseResultData;
+    gridLayout?: boolean;
 }
 
-const MovieCard = ({ movie, className, ...props }: MovieCardProps) => {
+const MovieCard = ({ movie, className, gridLayout, ...props }: MovieCardProps) => {
     const { openTrailer } = useTrailer();
 
     const handleOnWatchTrailerClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -25,7 +26,7 @@ const MovieCard = ({ movie, className, ...props }: MovieCardProps) => {
             {...props}
             className={cn(
                 className,
-                'group h-full pt-0 overflow-hidden border-border hover:border-primary/50 hover:shadow-xl',
+                'group h-full pt-0 gap-0 justify-between overflow-hidden border-border hover:border-primary/50 hover:shadow-xl',
             )}
         >
             <CardHeader className="relative aspect-[2/3] overflow-hidden px-0 gap-0">
@@ -59,13 +60,27 @@ const MovieCard = ({ movie, className, ...props }: MovieCardProps) => {
                 {movie.status === 'coming_soon' && <Badge className="absolute top-3 right-3">Coming Soon</Badge>}
             </CardHeader>
 
-            <CardContent className="space-y-3">
-                <h3 className="font-semibold text-lg line-clamp-2 group-hover:text-primary transition-colors">
+            <CardContent
+                className={cn('space-y-3 grid md:grid-rows-4 grid-rows-3 items-center', gridLayout && 'sm:px-6 px-3')}
+            >
+                <h3
+                    className={cn(
+                        'row-span-2 font-semibold text-lg line-clamp-2 group-hover:text-primary transition-colors',
+                        gridLayout && 'md:text-lg text-sm md:text-start text-center',
+                    )}
+                >
                     {movie.name}
                 </h3>
 
-                <p className="text-sm text-muted-foreground line-clamp-2">{movie.description}</p>
-                <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t">
+                <div className={cn(gridLayout && 'hidden md:block')}>
+                    <p className={cn('text-sm text-muted-foreground line-clamp-2')}>{movie.description}</p>
+                </div>
+                <div
+                    className={cn(
+                        'flex items-center justify-between text-xs text-muted-foreground pt-2 border-t',
+                        gridLayout && 'md:flex-row flex-col gap-1',
+                    )}
+                >
                     <div className="flex items-center gap-1">
                         <Clock className="w-3 h-3" />
                         <span>{movie.duration}</span>
