@@ -10,21 +10,12 @@ import { useMovieList } from '@/features/movie/queries';
 import { MovieBaseResultData } from '@/features/movie/DTOs/GetMovie.dto';
 
 export default function MoviePage() {
-    const router = useRouter();
     const searchParams = useSearchParams();
 
-    const statusFromUrl = searchParams.get('status');
-    const [activeTab, setActiveTab] = useState(statusFromUrl ?? 'all');
+    const activeTab = searchParams.get('status') ?? 'all';
     const { data = [], isLoading, isError, error } = useMovieList(activeTab === 'all' ? {} : { Status: activeTab });
 
     const movies = data as MovieBaseResultData[];
-
-    useEffect(() => {
-        const params = new URLSearchParams(searchParams.toString());
-        params.set('status', activeTab);
-
-        router.replace(`?${params.toString()}`, { scroll: false });
-    }, [activeTab, searchParams, router]);
 
     if (isError) return <div>Error: {error.message}</div>;
 
@@ -38,14 +29,11 @@ export default function MoviePage() {
                             { id: 'showing', label: 'Now Showing' },
                             { id: 'coming_soon', label: 'Coming Soon' },
                         ].map((tab) => (
-                            <Button
-                                key={tab.id}
-                                variant={activeTab === tab.id ? 'secondary' : 'ghost'}
-                                onClick={() => setActiveTab(tab.id)}
-                                className="relative"
-                            >
-                                {tab.label}
-                            </Button>
+                            <Link key={tab.id} href={`/movie?status=${tab.id}`} passHref>
+                                <Button variant={activeTab === tab.id ? 'secondary' : 'ghost'} className="relative">
+                                    {tab.label}
+                                </Button>
+                            </Link>
                         ))}
                     </div>
                 </div>
