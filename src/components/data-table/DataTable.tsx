@@ -1,15 +1,16 @@
 'use client';
 
-import { flexRender, Table as TableType } from '@tanstack/react-table';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useEffect, useState } from 'react';
+import { flexRender, Row, Table as TableType } from '@tanstack/react-table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 interface DataTableProps<TData> {
     table: TableType<TData>;
     stickyHeader?: boolean;
+    onRowClick?: (row: Row<TData>) => void;
 }
 
-export function DataTable<TData>({ table, stickyHeader = false }: DataTableProps<TData>) {
+export function DataTable<TData>({ table, stickyHeader = false, onRowClick }: DataTableProps<TData>) {
     const [data, setData] = useState<TableType<TData> | null>(null);
     useEffect(() => {
         setData(table);
@@ -41,7 +42,11 @@ export function DataTable<TData>({ table, stickyHeader = false }: DataTableProps
                 <TableBody>
                     {data.getRowModel().rows?.length ? (
                         data.getRowModel().rows.map((row) => (
-                            <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+                            <TableRow
+                                key={row.id}
+                                data-state={row.getIsSelected() && 'selected'}
+                                onClick={() => onRowClick?.(row)}
+                            >
                                 {row.getVisibleCells().map((cell) => (
                                     <TableCell key={cell.id}>
                                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
