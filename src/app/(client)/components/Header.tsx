@@ -2,8 +2,9 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { GalleryVerticalEnd, Search } from 'lucide-react';
+import { GalleryVerticalEnd, PanelLeft, Search } from 'lucide-react';
 
+import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
     NavigationMenu,
@@ -14,10 +15,11 @@ import {
     NavigationMenuTrigger,
     navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
-import { Command, CommandInput } from '@/components/ui/command';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 import Account from '@/components/AccountDropdown';
+import { DrawerTrigger } from '@/components/ui/drawer';
+import { Command, CommandInput } from '@/components/ui/command';
+import { sidebarItems } from '@/constants/clientSidebarItems.constant';
 
 export function Header() {
     const isMobile = useIsMobile();
@@ -27,7 +29,14 @@ export function Header() {
             viewport={isMobile}
             className="justify-between shadow-sm fixed top-0 left-1/2 -translate-x-1/2 z-10 backdrop-blur-sm p-3 max-w-full w-[1850px] 2xl:mx-auto"
         >
-            <NavigationMenuList className="flex-wrap">
+            <NavigationMenuList>
+                <NavigationMenuItem className="block lg:hidden">
+                    <DrawerTrigger asChild>
+                        <Button size={'icon-lg'} variant={'ghost'}>
+                            <PanelLeft />
+                        </Button>
+                    </DrawerTrigger>
+                </NavigationMenuItem>
                 <NavigationMenuItem>
                     <NavigationMenuLink
                         asChild
@@ -45,45 +54,40 @@ export function Header() {
                         </Link>
                     </NavigationMenuLink>
                 </NavigationMenuItem>
-                <NavigationMenuItem className="hidden lg:block">
-                    <NavigationMenuTrigger className="bg-transparent hover:bg-transparent focus:bg-transparent">
-                        Danh sách phim
-                    </NavigationMenuTrigger>
-                    <NavigationMenuContent>
-                        <ul className="grid w-[200px] gap-4">
-                            <li>
-                                <NavigationMenuLink asChild>
-                                    <Link href="/movie?status=showing">Phim đang chiếu</Link>
-                                </NavigationMenuLink>
-                                <NavigationMenuLink asChild>
-                                    <Link href="/movie?status=coming_soon">Phim sắp chiếu</Link>
-                                </NavigationMenuLink>
-                            </li>
-                        </ul>
-                    </NavigationMenuContent>
-                </NavigationMenuItem>
-                <NavigationMenuItem className="hidden lg:block">
-                    <NavigationMenuLink
-                        asChild
-                        className={cn(
-                            navigationMenuTriggerStyle(),
-                            'bg-transparent hover:bg-transparent focus:bg-transparent',
-                        )}
-                    >
-                        <Link href="/movie">Sự kiện và Tin Tức</Link>
-                    </NavigationMenuLink>
-                </NavigationMenuItem>
-                <NavigationMenuItem className="hidden lg:block">
-                    <NavigationMenuLink
-                        asChild
-                        className={cn(
-                            navigationMenuTriggerStyle(),
-                            'bg-transparent hover:bg-transparent focus:bg-transparent',
-                        )}
-                    >
-                        <Link href="/cinema">Rạp</Link>
-                    </NavigationMenuLink>
-                </NavigationMenuItem>
+                {sidebarItems.map((item, index) => {
+                    return item.children ? (
+                        <NavigationMenuItem key={index} className="hidden lg:block">
+                            <NavigationMenuTrigger className="bg-transparent hover:bg-transparent focus:bg-transparent">
+                                {item.name}
+                            </NavigationMenuTrigger>
+                            <NavigationMenuContent>
+                                <ul className="grid w-[200px] gap-4">
+                                    <li>
+                                        {item.children.map((child, index) => {
+                                            return (
+                                                <NavigationMenuLink asChild key={index}>
+                                                    <Link href={child.url}>{child.name}</Link>
+                                                </NavigationMenuLink>
+                                            );
+                                        })}
+                                    </li>
+                                </ul>
+                            </NavigationMenuContent>
+                        </NavigationMenuItem>
+                    ) : (
+                        <NavigationMenuItem key={index} className="hidden lg:block">
+                            <NavigationMenuLink
+                                asChild
+                                className={cn(
+                                    navigationMenuTriggerStyle(),
+                                    'bg-transparent hover:bg-transparent focus:bg-transparent',
+                                )}
+                            >
+                                <Link href={item.url}>{item.name}</Link>
+                            </NavigationMenuLink>
+                        </NavigationMenuItem>
+                    );
+                })}
             </NavigationMenuList>
             <NavigationMenuList className="items-center h-full flex cursor-pointer">
                 <NavigationMenuItem>
