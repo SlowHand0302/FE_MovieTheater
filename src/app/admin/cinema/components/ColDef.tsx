@@ -45,11 +45,13 @@ export const useCinemaColumns = ({
                     />
                 ),
                 cell: ({ row }) => (
-                    <Checkbox
-                        checked={row.getIsSelected()}
-                        onCheckedChange={(value) => row.toggleSelected(!!value)}
-                        aria-label="Select row"
-                    />
+                    <div onClick={(e) => e.stopPropagation()}>
+                        <Checkbox
+                            checked={row.getIsSelected()}
+                            onCheckedChange={(value) => row.toggleSelected(!!value)}
+                            aria-label="Select row"
+                        />
+                    </div>
                 ),
                 enableSorting: false,
                 enableHiding: false,
@@ -64,6 +66,15 @@ export const useCinemaColumns = ({
                 accessorKey: 'address',
                 header: ({ column }) => {
                     return <SortableHeader column={column}>Address</SortableHeader>;
+                },
+                cell: ({ row }) => {
+                    return <div className="max-w-sm line-clamp-1 truncate">{row.original.address}</div>;
+                },
+            },
+            {
+                accessorKey: 'city',
+                header: ({ column }) => {
+                    return <SortableHeader column={column}>City</SortableHeader>;
                 },
             },
             {
@@ -98,31 +109,33 @@ export const useCinemaColumns = ({
                     const cinema = row.original;
 
                     return (
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="h-8 w-8 p-0 ">
-                                    <MoreHorizontal />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuItem onClick={() => navigator.clipboard.writeText(cinema.id)}>
-                                    <Copy />
-                                    Copy ID
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem onSelect={() => onViewDetails && onViewDetails(cinema)}>
-                                    <FileText /> View details
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onSelect={() => onEdit && onEdit(cinema)}>
-                                    <SquarePen /> Edit
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem onSelect={() => onDelete && onDelete(cinema)}>
-                                    <Trash2 /> Remove
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                        <div onClick={(e) => e.stopPropagation()}>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" className="h-8 w-8 p-0 ">
+                                        <MoreHorizontal />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                    <DropdownMenuItem onClick={() => navigator.clipboard.writeText(cinema.id)}>
+                                        <Copy />
+                                        Copy ID
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem onSelect={() => onViewDetails && onViewDetails(cinema)}>
+                                        <FileText /> View details
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onSelect={() => onEdit && onEdit(cinema)}>
+                                        <SquarePen /> Edit
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem onSelect={() => onDelete && onDelete(cinema)}>
+                                        <Trash2 /> Remove
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
                     );
                 },
             },

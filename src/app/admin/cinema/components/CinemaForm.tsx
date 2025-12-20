@@ -13,16 +13,22 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { LoaderCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Cinema, CinemaStatus } from '@/interfaces/Cinema.interface';
-import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+import { queryClient } from '@/lib/queryClient.config';
+import { time12hTo24Hour } from '@/lib/dateTime.helper';
+import { useCreateCinema, useUpdateCinema } from '@/features/cinema/mutations';
 
 const cinemaFormSchema = z
     .object({
         name: z.string().nonempty('Name required').min(6, 'Name must have at least 6 characters'),
         address: z.string().nonempty('Address required'),
+        city: z.string().nonempty('Region required'),
         phoneNumber: z
             .string()
             .nonempty('Phone number required')
@@ -30,7 +36,7 @@ const cinemaFormSchema = z
         email: z.email('Invalid email format').nonempty('Email required'),
         open_Time: z.iso.time('Invalid time format').nonempty('Open time required'),
         close_Time: z.iso.time('Invalid time format').nonempty('Close Time required'),
-        status: z.string().nonempty('Status required'),
+        status: z.enum(CinemaStatus),
     })
     .refine((values) => values.open_Time < values.close_Time, {
         error: 'Close time must be after open time',
@@ -44,52 +50,69 @@ interface CinemaFormProps {
 }
 
 const CinemaForm = ({ cinema, openForm, setOpenForm }: CinemaFormProps) => {
+    const { mutate: createCinema, isPending: createPending } = useCreateCinema();
+    const { mutate: updateCinema, isPending: updatePending } = useUpdateCinema();
+
+    const initialValue = {
+        name: '',
+        address: '',
+        city: '',
+        phoneNumber: '',
+        email: '',
+        open_Time: '09:00',
+        close_Time: '23:00',
+        status: CinemaStatus.INACTIVE,
+    };
+
     const form = useForm<z.infer<typeof cinemaFormSchema>>({
         resolver: zodResolver(cinemaFormSchema),
-        defaultValues: {
-            name: '',
-            address: '',
-            phoneNumber: '',
-            email: '',
-            open_Time: '09:00',
-            close_Time: '23:00',
-            status: 'inactive',
-        },
+        defaultValues: initialValue,
     });
 
     const onSubmit = (data: z.infer<typeof cinemaFormSchema>) => {
-        setOpenForm(false);
-        toast.success('You submitted the following values:', {
-            description: (
-                <pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
-                    <code>{JSON.stringify(data, null, 2)}</code>
-                </pre>
-            ),
-            position: 'bottom-right',
-            classNames: {
-                content: 'flex flex-col gap-2',
-            },
-            style: {
-                '--border-radius': 'calc(var(--radius)  + 4px)',
-            } as React.CSSProperties,
-            richColors: true,
-        });
-        form.reset();
+        if (cinema) {
+            updateCinema(
+                { id: cinema.id, data },
+                {
+                    onSuccess: (res) => {
+                        if (res.result) {
+                            setOpenForm(false);
+                            queryClient.invalidateQueries({ queryKey: ['cinemas', {}] });
+                            toast.success('Create cinema successfully', { richColors: true });
+                            form.reset();
+                        }
+                    },
+                    onError: (error) => {
+                        toast.error(error.message, { richColors: true });
+                    },
+                },
+            );
+        } else {
+            createCinema(data, {
+                onSuccess: (res) => {
+                    if (res.result) {
+                        setOpenForm(false);
+                        queryClient.invalidateQueries({ queryKey: ['cinemas', {}] });
+                        toast.success('Create cinema successfully', { richColors: true });
+                        form.reset();
+                    }
+                },
+                onError: (error) => {
+                    toast.error(error.message, { richColors: true });
+                },
+            });
+        }
     };
 
     useEffect(() => {
         if (!openForm) return;
         const defaultVal = cinema
-            ? { ...cinema }
-            : {
-                  name: '',
-                  address: '',
-                  phoneNumber: '',
-                  email: '',
-                  open_Time: '09:00:00',
-                  close_Time: '23:00:00',
-                  status: 'inactive',
-              };
+            ? {
+                  ...cinema,
+                  open_Time: time12hTo24Hour(cinema.open_Time),
+                  close_Time: time12hTo24Hour(cinema.close_Time),
+              }
+            : initialValue;
         form.reset(defaultVal);
     }, [cinema, openForm, form]);
 
@@ -121,6 +144,7 @@ const CinemaForm = ({ cinema, openForm, setOpenForm }: CinemaFormProps) => {
                                         aria-invalid={fieldState.invalid}
                                         placeholder="Aa..."
                                         autoComplete="off"
+                                        disabled={updatePending || createPending}
                                     />
                                     {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                                 </Field>
@@ -138,39 +162,57 @@ const CinemaForm = ({ cinema, openForm, setOpenForm }: CinemaFormProps) => {
                                         aria-invalid={fieldState.invalid}
                                         placeholder="Aa..."
                                         autoComplete="off"
+                                        disabled={updatePending || createPending}
                                     />
                                     {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                                 </Field>
                             )}
                         />
-                        <Controller
-                            name="status"
-                            control={form.control}
-                            render={({ field, fieldState }) => (
-                                <Field data-invalid={fieldState.invalid} className="gap-1">
-                                    <FieldContent>
-                                        <FieldLabel htmlFor="cinema-status">Status</FieldLabel>
-                                        {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                                    </FieldContent>
-                                    <Select name={field.name} value={field.value} onValueChange={field.onChange}>
-                                        <SelectTrigger
-                                            id="cinema-status"
+                        <div className="flex md:gap-7 gap-3 flex-col md:flex-row">
+                            <Controller
+                                name="city"
+                                control={form.control}
+                                render={({ field, fieldState }) => (
+                                    <Field data-invalid={fieldState.invalid} className="gap-1">
+                                        <FieldLabel htmlFor="cinema-city">Region</FieldLabel>
+                                        <Input
+                                            {...field}
+                                            id="cinema-city"
                                             aria-invalid={fieldState.invalid}
-                                            className="min-w-[120px] capitalize"
-                                        >
-                                            <SelectValue placeholder="Select" />
-                                        </SelectTrigger>
-                                        <SelectContent position="item-aligned" align="end">
-                                            {Object.entries(CinemaStatus).map(([key, value]) => (
-                                                <SelectItem key={key} value={value} className="capitalize">
-                                                    {value}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </Field>
-                            )}
-                        />
+                                            placeholder="Aa..."
+                                            autoComplete="off"
+                                        />
+                                        {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                                    </Field>
+                                )}
+                            />
+                            <Controller
+                                name="status"
+                                control={form.control}
+                                render={({ field, fieldState }) => (
+                                    <Field data-invalid={fieldState.invalid} className="gap-1">
+                                        <FieldLabel htmlFor="cinema-status">Status</FieldLabel>
+                                        <Select name={field.name} value={field.value} onValueChange={field.onChange}>
+                                            <SelectTrigger
+                                                id="cinema-status"
+                                                aria-invalid={fieldState.invalid}
+                                                className="min-w-[120px] capitalize"
+                                            >
+                                                <SelectValue placeholder="Select" />
+                                            </SelectTrigger>
+                                            <SelectContent position="item-aligned" align="end">
+                                                {Object.entries(CinemaStatus).map(([key, value]) => (
+                                                    <SelectItem key={key} value={value} className="capitalize">
+                                                        {value}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                                    </Field>
+                                )}
+                            />
+                        </div>
                         <div className="flex md:gap-7 gap-3 flex-col md:flex-row">
                             <Controller
                                 name="phoneNumber"
@@ -184,6 +226,7 @@ const CinemaForm = ({ cinema, openForm, setOpenForm }: CinemaFormProps) => {
                                             aria-invalid={fieldState.invalid}
                                             placeholder="Aa..."
                                             autoComplete="off"
+                                            disabled={updatePending || createPending}
                                         />
                                         {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                                     </Field>
@@ -201,6 +244,7 @@ const CinemaForm = ({ cinema, openForm, setOpenForm }: CinemaFormProps) => {
                                             aria-invalid={fieldState.invalid}
                                             placeholder="Aa..."
                                             autoComplete="off"
+                                            disabled={updatePending || createPending}
                                         />
                                         {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                                     </Field>
@@ -219,6 +263,7 @@ const CinemaForm = ({ cinema, openForm, setOpenForm }: CinemaFormProps) => {
                                             type="time"
                                             id="cinema-open-time"
                                             step="60"
+                                            disabled={updatePending || createPending}
                                             className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
                                         />
                                         {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -236,6 +281,7 @@ const CinemaForm = ({ cinema, openForm, setOpenForm }: CinemaFormProps) => {
                                             type="time"
                                             id="cinema-close-time"
                                             step="60"
+                                            disabled={updatePending || createPending}
                                             className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
                                         />
                                         {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -245,11 +291,22 @@ const CinemaForm = ({ cinema, openForm, setOpenForm }: CinemaFormProps) => {
                         </div>
                         <DialogFooter className="sticky bottom-0 bg-background">
                             <DialogClose asChild>
-                                <Button variant="outline" onClick={() => form.reset()}>
+                                <Button
+                                    variant="outline"
+                                    onClick={() => form.reset()}
+                                    disabled={updatePending || createPending}
+                                >
                                     Cancel
                                 </Button>
                             </DialogClose>
-                            <Button type="submit">Save changes</Button>
+                            <Button type="submit">
+                                {(updatePending || createPending) && <LoaderCircle className="animate-spin" />}
+                                {updatePending
+                                    ? 'Processing Updating...'
+                                    : createPending
+                                      ? 'Processing Creating...'
+                                      : 'Save Changes'}
+                            </Button>
                         </DialogFooter>
                     </FieldGroup>
                 </form>

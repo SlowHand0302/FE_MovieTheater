@@ -3,35 +3,42 @@ import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import {
-    useReactTable,
-    getCoreRowModel,
-    getPaginationRowModel,
+    Row,
     SortingState,
-    getSortedRowModel,
+    useReactTable,
     VisibilityState,
+    getCoreRowModel,
+    getSortedRowModel,
     ColumnFiltersState,
-    getFilteredRowModel,
     getFacetedRowModel,
+    getFilteredRowModel,
+    getPaginationRowModel,
     getFacetedUniqueValues,
 } from '@tanstack/react-table';
 
-import { CircleX, Plus } from 'lucide-react';
+import { CircleX, LoaderCircle, Plus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import CinemaForm from './components/CinemaForm';
 import { useCinemaColumns } from './components/ColDef';
 import { DataTable } from '@/components/data-table/DataTable';
-import { dummyCinemas } from '@/features/cinema/constants/dummyData.constant';
 import { DataTableColFilter } from '@/components/data-table/DataTableColFilter';
 import { DataTablePagination } from '@/components/data-table/DataTablePagination';
 import { DataTableViewOptions } from '@/components/data-table/DataTableViewOptions';
 
-import { Cinema, CinemaStatus } from '@/interfaces/Cinema.interface';
+import { useCinemas } from '@/features/cinema/queries';
+import { queryClient } from '@/lib/queryClient.config';
+import { useDeleteCinema } from '@/features/cinema/mutations';
 import { useConfirm } from '@/providers/ConfirmContext.provider';
+import { Cinema, CinemaStatus } from '@/interfaces/Cinema.interface';
 
 const Page = () => {
     const confirm = useConfirm();
     const router = useRouter();
+    const { data = [], isPending, isError = true } = useCinemas({});
+    const { mutate: deleteCinema } = useDeleteCinema();
+    const cinemas = data as Cinema[];
+
     const [selectedCinema, setSelectedCinema] = useState<Cinema>();
     const [openFormDialog, setOpenFormDialog] = useState<boolean>(false);
 
@@ -48,7 +55,7 @@ const Page = () => {
     });
 
     const table = useReactTable({
-        data: dummyCinemas,
+        data: cinemas,
         columns,
         onSortingChange: setSorting,
         onRowSelectionChange: setRowSelection,
@@ -74,23 +81,28 @@ const Page = () => {
         setOpenFormDialog(true);
     }
 
+    function handleOnTableRowClick(row: Row<Cinema>) {
+        const cinema = row.original;
+        router.push(`/admin/cinema/${cinema.id}`);
+    }
+
     async function handleDeleteCinema(cinema: Cinema) {
         const confirmed = await confirm({});
         if (confirmed) {
-            toast.success('You submitted the following values:', {
-                description: (
-                    <pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
-                        <code>{JSON.stringify(cinema, null, 2)}</code>
-                    </pre>
-                ),
-                position: 'bottom-right',
-                classNames: {
-                    content: 'flex flex-col gap-2',
+            deleteCinema(cinema.id, {
+                onSuccess: (res) => {
+                    if (res) {
+                        toast.success(`Deleted cinema ${cinema.name} successfully`, {
+                            richColors: true,
+                        });
+                        queryClient.invalidateQueries({ queryKey: ['cinemas', {}] });
+                    }
                 },
-                style: {
-                    '--border-radius': 'calc(var(--radius)  + 4px)',
-                } as React.CSSProperties,
-                richColors: true,
+                onError: (error) => {
+                    toast.error(error.message, {
+                        richColors: true,
+                    });
+                },
             });
         }
     }
@@ -100,6 +112,10 @@ const Page = () => {
             setSelectedCinema(undefined);
         }
     }, [openFormDialog, setSelectedCinema]);
+
+    if (isError) {
+        return <div className="text-center py-10 text-gray-600">There are some error happened.</div>;
+    }
 
     return (
         <>
@@ -138,7 +154,13 @@ const Page = () => {
                             <DataTableViewOptions table={table} />
                         </div>
                     </div>
-                    <DataTable table={table} stickyHeader={true} />
+                    {isPending ? (
+                        <div className="text-center py-10 text-gray-600 w-full">
+                            <LoaderCircle className="animate-spin text-5xl mx-auto" />
+                        </div>
+                    ) : (
+                        <DataTable table={table} stickyHeader={true} onRowClick={handleOnTableRowClick} />
+                    )}
                     <DataTablePagination table={table} pageSizes={[10, 20, 30, 40, 50]} />
                 </section>
             </main>
