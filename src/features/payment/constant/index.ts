@@ -1,1 +1,1 @@
-export const PAYMENT_ENDPOINT = '/create-transaction';
+export const PAYMENT_ENDPOINT = '/transaction';

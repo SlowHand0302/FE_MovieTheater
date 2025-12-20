@@ -1,10 +1,10 @@
 import { Auditable } from './Auditable.interface';
 
 export enum CinemaStatus {
-    ACTIVE = 'active',
-    INACTIVE = 'inactive',
-    MAINTENANCE = 'maintenance',
-    CLOSED = 'closed',
+    ACTIVE = 'Active',
+    INACTIVE = 'Inactive',
+    MAINTENANCE = 'Maintenance',
+    CLOSED = 'Closed',
 }
 
 export interface Cinema extends Auditable {

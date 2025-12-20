@@ -1,14 +1,14 @@
 import { Auditable } from './Auditable.interface';
 
 export interface User extends Auditable {
-    fullname: string;
+    fullName: string;
     email: string;
     password: string;
     role: string;
     phoneNumber: string;
     dayOfBirth: Date;
     gender: string;
-    point: number;
+    points: number;
     address: string;
     isVerified: boolean;
 }

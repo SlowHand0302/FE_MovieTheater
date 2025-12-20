@@ -1,1 +1,1 @@
-export const BOOKING_ENDPOINT = '/create-booking';
+export const BOOKING_ENDPOINT = '/booking';
