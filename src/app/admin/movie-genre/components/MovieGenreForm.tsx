@@ -18,6 +18,9 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { MovieGenre } from '@/interfaces/MovieGenre.interface';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { useCreateMovieGenre, useUpdateMovieGenre } from '@/features/movie-genre/mutations';
+import { queryClient } from '@/lib/queryClient.config';
+import { LoaderCircle } from 'lucide-react';
 
 const movieGenreFormSchema = z.object({
     name: z.string().nonempty('Movie Genre Name required'),
@@ -30,6 +33,9 @@ interface MovieGenreFormProps {
 }
 
 const MovieGenreForm = ({ genre, openForm, setOpenForm }: MovieGenreFormProps) => {
+    const { mutate: createGenre, isPending: createPending } = useCreateMovieGenre();
+    const { mutate: updateGenre, isPending: updatePending } = useUpdateMovieGenre();
+
     const form = useForm<z.infer<typeof movieGenreFormSchema>>({
         resolver: zodResolver(movieGenreFormSchema),
         defaultValues: {
@@ -38,23 +44,38 @@ const MovieGenreForm = ({ genre, openForm, setOpenForm }: MovieGenreFormProps) =
     });
 
     const onSubmit = (data: z.infer<typeof movieGenreFormSchema>) => {
-        setOpenForm(false);
-        toast.success('You submitted the following values:', {
-            description: (
-                <pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
-                    <code>{JSON.stringify(data, null, 2)}</code>
-                </pre>
-            ),
-            position: 'bottom-right',
-            classNames: {
-                content: 'flex flex-col gap-2',
-            },
-            style: {
-                '--border-radius': 'calc(var(--radius)  + 4px)',
-            } as React.CSSProperties,
-            richColors: true,
-        });
-        form.reset();
+        if (genre) {
+            updateGenre(
+                { id: genre.id, data },
+                {
+                    onSuccess: (res) => {
+                        if (res) {
+                            setOpenForm(false);
+                            queryClient.invalidateQueries({ queryKey: ['genres'] });
+                            toast.success('Create room type successfully', { richColors: true });
+                            form.reset();
+                        }
+                    },
+                    onError: (error) => {
+                        toast.error(error.message, { richColors: true });
+                    },
+                },
+            );
+        } else {
+            createGenre(data, {
+                onSuccess: (res) => {
+                    if (res) {
+                        setOpenForm(false);
+                        queryClient.invalidateQueries({ queryKey: ['genres'] });
+                        toast.success('Create room type successfully', { richColors: true });
+                        form.reset();
+                    }
+                },
+                onError: (error) => {
+                    toast.error(error.message, { richColors: true });
+                },
+            });
+        }
     };
 
     useEffect(() => {
@@ -87,6 +108,7 @@ const MovieGenreForm = ({ genre, openForm, setOpenForm }: MovieGenreFormProps) =
                                         aria-invalid={fieldState.invalid}
                                         placeholder="Aa..."
                                         autoComplete="off"
+                                        disabled={createPending || updatePending}
                                     />
                                     {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                                 </Field>
@@ -94,11 +116,22 @@ const MovieGenreForm = ({ genre, openForm, setOpenForm }: MovieGenreFormProps) =
                         />
                         <DialogFooter>
                             <DialogClose asChild>
-                                <Button variant="outline" onClick={() => form.reset()}>
+                                <Button
+                                    variant="outline"
+                                    onClick={() => form.reset()}
+                                    disabled={createPending || updatePending}
+                                >
                                     Cancel
                                 </Button>
                             </DialogClose>
-                            <Button type="submit">Save changes</Button>
+                            <Button type="submit">
+                                {(updatePending || createPending) && <LoaderCircle className="animate-spin" />}
+                                {updatePending
+                                    ? 'Processing Updating...'
+                                    : createPending
+                                      ? 'Processing Creating...'
+                                      : 'Save Changes'}{' '}
+                            </Button>
                         </DialogFooter>
                     </FieldGroup>
                 </form>

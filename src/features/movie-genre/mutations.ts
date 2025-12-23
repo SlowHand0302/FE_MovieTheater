@@ -27,7 +27,7 @@ export const useUpdateMovieGenre = () => {
 export const useDeleteMovieGenre = () => {
     return useMutation({
         mutationFn: async (id: string) => {
-            return await apiClient.put<ApiResponse<null>>(`${MOVIE_GENRES_ENDPOINT}/${id}`);
+            return await apiClient.delete<ApiResponse<null>>(`${MOVIE_GENRES_ENDPOINT}/${id}`);
         },
     });
 };

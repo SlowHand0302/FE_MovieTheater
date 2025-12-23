@@ -9,13 +9,14 @@ interface MovieGenreQueryStrings {
     Name?: string;
 }
 // Query all movie genres
-export const useMovieGenres = (queryString: MovieGenreQueryStrings) => {
+export const useMovieGenres = (queryString: Partial<Record<keyof MovieGenreQueryStrings, string>>) => {
+    const params = new URLSearchParams(queryString).toString();
+
     return useQuery({
         queryKey: ['genres', queryString],
         queryFn: async () => {
-            return await apiClient.get<ApiResponse<MovieGenre[]>>(
-                `${MOVIE_GENRES_ENDPOINT}s?${JSON.stringify(queryString)}`,
-            );
+            return await apiClient.get<ApiResponse<MovieGenre[]>>(`${MOVIE_GENRES_ENDPOINT}s?${params ? params : ''}`);
         },
+        select: (d) => d.data,
     });
 };

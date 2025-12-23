@@ -14,7 +14,7 @@ import {
     getFilteredRowModel,
 } from '@tanstack/react-table';
 
-import { CircleX, Plus } from 'lucide-react';
+import { CircleX, LoaderCircle, Plus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import MovieGenreForm from './components/MovieGenreForm';
@@ -25,8 +25,15 @@ import { useConfirm } from '@/providers/ConfirmContext.provider';
 import { dummyMovieGenres } from '@/features/movie-genre/constants/dummyData.constant';
 import { DataTablePagination } from '@/components/data-table/DataTablePagination';
 import { DataTableViewOptions } from '@/components/data-table/DataTableViewOptions';
+import { useMovieGenres } from '@/features/movie-genre/queries';
+import { useDeleteMovieGenre } from '@/features/movie-genre/mutations';
+import { queryClient } from '@/lib/queryClient.config';
 
 const Page = () => {
+    const { data = [], isPending, isError } = useMovieGenres({});
+    const { mutate: deleteGenre } = useDeleteMovieGenre();
+    const genres = data as MovieGenre[];
+
     const confirm = useConfirm();
     const [selectedGenre, setSelectedGenre] = useState<MovieGenre>();
     const [openFormDialog, setOpenFormDialog] = useState<boolean>(false);
@@ -41,7 +48,7 @@ const Page = () => {
     });
 
     const table = useReactTable({
-        data: dummyMovieGenres,
+        data: genres,
         columns,
         onSortingChange: setSorting,
         onRowSelectionChange: setRowSelection,
@@ -70,20 +77,16 @@ const Page = () => {
     async function handleDeleteGenre(genre: MovieGenre) {
         const confirmed = await confirm({});
         if (confirmed) {
-            toast.success('You submitted the following values:', {
-                description: (
-                    <pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
-                        <code>{JSON.stringify(genre, null, 2)}</code>
-                    </pre>
-                ),
-                position: 'bottom-right',
-                classNames: {
-                    content: 'flex flex-col gap-2',
+            deleteGenre(genre.id, {
+                onSuccess: (res) => {
+                    if (res) {
+                        queryClient.invalidateQueries({ queryKey: ['genres'] });
+                        toast.success('Delete movie genre successfully', { richColors: true });
+                    }
                 },
-                style: {
-                    '--border-radius': 'calc(var(--radius)  + 4px)',
-                } as React.CSSProperties,
-                richColors: true,
+                onError: (error) => {
+                    toast.error(error.message, { richColors: true });
+                },
             });
         }
     }
@@ -93,6 +96,10 @@ const Page = () => {
             setSelectedGenre(undefined);
         }
     }, [openFormDialog, setSelectedGenre]);
+
+    if (isError) {
+        return <div className="text-center py-10 text-gray-600">There are some error happened.</div>;
+    }
 
     return (
         <>
@@ -126,7 +133,13 @@ const Page = () => {
                             <DataTableViewOptions table={table} />
                         </div>
                     </div>
-                    <DataTable table={table} stickyHeader={true} />
+                    {isPending ? (
+                        <div className="text-center py-10 text-gray-600 w-full">
+                            <LoaderCircle className="animate-spin text-5xl mx-auto" />
+                        </div>
+                    ) : (
+                        <DataTable table={table} stickyHeader={true} />
+                    )}
                     <DataTablePagination table={table} pageSizes={[10, 20, 30, 40, 50]} />
                 </section>
             </main>
