@@ -18,6 +18,9 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { RoomType } from '@/interfaces/RoomType.interface';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { useCreateRoomType, useUpdateRoomType } from '@/features/room-type/mutations';
+import { queryClient } from '@/lib/queryClient.config';
+import { LoaderCircle } from 'lucide-react';
 
 const roomTypeFormSchema = z.object({
     type: z.string().nonempty('Room Type Name required'),
@@ -31,6 +34,9 @@ interface RoomTypeFormProps {
 }
 
 const RoomTypeForm = ({ roomType, openForm, setOpenForm }: RoomTypeFormProps) => {
+    const { mutate: createRoomType, isPending: createPending } = useCreateRoomType();
+    const { mutate: updateRoomType, isPending: updatePending } = useUpdateRoomType();
+
     const form = useForm<z.infer<typeof roomTypeFormSchema>>({
         resolver: zodResolver(roomTypeFormSchema),
         defaultValues: {
@@ -40,23 +46,38 @@ const RoomTypeForm = ({ roomType, openForm, setOpenForm }: RoomTypeFormProps) =>
     });
 
     const onSubmit = (data: z.infer<typeof roomTypeFormSchema>) => {
-        setOpenForm(false);
-        toast.success('You submitted the following values:', {
-            description: (
-                <pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
-                    <code>{JSON.stringify(data, null, 2)}</code>
-                </pre>
-            ),
-            position: 'bottom-right',
-            classNames: {
-                content: 'flex flex-col gap-2',
-            },
-            style: {
-                '--border-radius': 'calc(var(--radius)  + 4px)',
-            } as React.CSSProperties,
-            richColors: true,
-        });
-        form.reset();
+        if (roomType) {
+            updateRoomType(
+                { id: roomType.id, data },
+                {
+                    onSuccess: (res) => {
+                        if (res) {
+                            setOpenForm(false);
+                            queryClient.invalidateQueries({ queryKey: ['room-types'] });
+                            toast.success('Update room type successfully', { richColors: true });
+                            form.reset();
+                        }
+                    },
+                    onError: (error) => {
+                        toast.error(error.message, { richColors: true });
+                    },
+                },
+            );
+        } else {
+            createRoomType(data, {
+                onSuccess: (res) => {
+                    if (res) {
+                        setOpenForm(false);
+                        queryClient.invalidateQueries({ queryKey: ['room-types'] });
+                        toast.success('Create room type successfully', { richColors: true });
+                        form.reset();
+                    }
+                },
+                onError: (error) => {
+                    toast.error(error.message, { richColors: true });
+                },
+            });
+        }
     };
 
     useEffect(() => {
@@ -89,6 +110,7 @@ const RoomTypeForm = ({ roomType, openForm, setOpenForm }: RoomTypeFormProps) =>
                                         aria-invalid={fieldState.invalid}
                                         placeholder="Aa..."
                                         autoComplete="off"
+                                        disabled={createPending || updatePending}
                                     />
                                     {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                                 </Field>
@@ -110,6 +132,7 @@ const RoomTypeForm = ({ roomType, openForm, setOpenForm }: RoomTypeFormProps) =>
                                             const value = e.target.value;
                                             field.onChange(value === '' ? null : Number(value)); // Convert to number or null
                                         }}
+                                        disabled={createPending || updatePending}
                                     />
                                     {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                                 </Field>
@@ -117,11 +140,22 @@ const RoomTypeForm = ({ roomType, openForm, setOpenForm }: RoomTypeFormProps) =>
                         />
                         <DialogFooter>
                             <DialogClose asChild>
-                                <Button variant="outline" onClick={() => form.reset()}>
+                                <Button
+                                    variant="outline"
+                                    onClick={() => form.reset()}
+                                    disabled={createPending || updatePending}
+                                >
                                     Cancel
                                 </Button>
                             </DialogClose>
-                            <Button type="submit">Save changes</Button>
+                            <Button type="submit">
+                                {(updatePending || createPending) && <LoaderCircle className="animate-spin" />}
+                                {updatePending
+                                    ? 'Processing Updating...'
+                                    : createPending
+                                      ? 'Processing Creating...'
+                                      : 'Save Changes'}{' '}
+                            </Button>
                         </DialogFooter>
                     </FieldGroup>
                 </form>

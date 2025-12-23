@@ -10,13 +10,14 @@ interface RoomTypeQueryStrings {
     BasePrice?: string;
 }
 // Query all movie genres
-export const useRoomTypes = (queryString: RoomTypeQueryStrings) => {
+export const useRoomTypes = (queryString: Partial<Record<keyof RoomTypeQueryStrings, string>>) => {
+    const params = new URLSearchParams(queryString).toString();
+
     return useQuery({
-        queryKey: ['genres', queryString],
+        queryKey: ['room-types', params],
         queryFn: async () => {
-            return await apiClient.get<ApiResponse<RoomType[]>>(
-                `${ROOM_TYPE_ENDPOINT}s?${JSON.stringify(queryString)}`,
-            );
+            return await apiClient.get<ApiResponse<RoomType[]>>(`${ROOM_TYPE_ENDPOINT}s?${params ? `?${params}` : ''}`);
         },
+        select: (d) => d.data,
     });
 };

@@ -27,7 +27,7 @@ export const useUpdateRoomType = () => {
 export const useDeleteRoomType = () => {
     return useMutation({
         mutationFn: async (id: string) => {
-            return await apiClient.put<ApiResponse<null>>(`${ROOM_TYPE_ENDPOINT}/${id}`);
+            return await apiClient.delete<ApiResponse<null>>(`${ROOM_TYPE_ENDPOINT}/${id}`);
         },
     });
 };

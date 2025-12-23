@@ -14,7 +14,7 @@ import {
     getFilteredRowModel,
 } from '@tanstack/react-table';
 
-import { CircleX, Plus } from 'lucide-react';
+import { CircleX, LoaderCircle, Plus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import RoomTypeForm from './components/RoomTypeForm';
@@ -24,9 +24,15 @@ import { DataTable } from '@/components/data-table/DataTable';
 import { useConfirm } from '@/providers/ConfirmContext.provider';
 import { DataTablePagination } from '@/components/data-table/DataTablePagination';
 import { DataTableViewOptions } from '@/components/data-table/DataTableViewOptions';
-import { dummyRoomTypes } from '@/features/room-type/constants/dummyData.constant';
+import { useRoomTypes } from '@/features/room-type/queries';
+import { useDeleteRoomType } from '@/features/room-type/mutations';
+import { queryClient } from '@/lib/queryClient.config';
 
 const Page = () => {
+    const { data = [], isPending, isError } = useRoomTypes({});
+    const { mutate: deleteRoomType } = useDeleteRoomType();
+    const roomTypes = data as RoomType[];
+
     const confirm = useConfirm();
     const [selectedRoomType, setSelectedRoomType] = useState<RoomType>();
     const [openFormDialog, setOpenFormDialog] = useState<boolean>(false);
@@ -41,7 +47,7 @@ const Page = () => {
     });
 
     const table = useReactTable({
-        data: dummyRoomTypes,
+        data: roomTypes,
         columns,
         onSortingChange: setSorting,
         onRowSelectionChange: setRowSelection,
@@ -70,20 +76,16 @@ const Page = () => {
     async function handleDeleteRoomType(roomType: RoomType) {
         const confirmed = await confirm({});
         if (confirmed) {
-            toast.success('You submitted the following values:', {
-                description: (
-                    <pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
-                        <code>{JSON.stringify(roomType, null, 2)}</code>
-                    </pre>
-                ),
-                position: 'bottom-right',
-                classNames: {
-                    content: 'flex flex-col gap-2',
+            deleteRoomType(roomType.id, {
+                onSuccess: (res) => {
+                    if (res) {
+                        queryClient.invalidateQueries({ queryKey: ['room-types'] });
+                        toast.success('Delete room type successfully', { richColors: true });
+                    }
                 },
-                style: {
-                    '--border-radius': 'calc(var(--radius)  + 4px)',
-                } as React.CSSProperties,
-                richColors: true,
+                onError: (error) => {
+                    toast.error(error.message, { richColors: true });
+                },
             });
         }
     }
@@ -93,6 +95,10 @@ const Page = () => {
             setSelectedRoomType(undefined);
         }
     }, [openFormDialog, setSelectedRoomType]);
+
+    if (isError) {
+        return <div className="text-center py-10 text-gray-600">There are some error happened.</div>;
+    }
 
     return (
         <>
@@ -126,7 +132,13 @@ const Page = () => {
                             <DataTableViewOptions table={table} />
                         </div>
                     </div>
-                    <DataTable table={table} stickyHeader={true} />
+                    {isPending ? (
+                        <div className="text-center py-10 text-gray-600 w-full">
+                            <LoaderCircle className="animate-spin text-5xl mx-auto" />
+                        </div>
+                    ) : (
+                        <DataTable table={table} stickyHeader={true} />
+                    )}{' '}
                     <DataTablePagination table={table} pageSizes={[10, 20, 30, 40, 50]} />
                 </section>
             </main>

@@ -66,28 +66,6 @@ export const useRoomTypeColumns = ({ onEdit, onDelete, onCopyId }: Partial<useRo
                 },
             },
             {
-                accessorKey: 'createdAt',
-                header: ({ column }) => {
-                    return <SortableHeader column={column}>Created At</SortableHeader>;
-                },
-                cell: ({ row }) => {
-                    const roomType = row.original;
-                    const formattedDate = new Date(roomType.createdAt).toLocaleDateString('vi-VN');
-                    return <div>{formattedDate}</div>;
-                },
-            },
-            {
-                accessorKey: 'updatedAt',
-                header: ({ column }) => {
-                    return <SortableHeader column={column}>Updated At</SortableHeader>;
-                },
-                cell: ({ row }) => {
-                    const roomType = row.original;
-                    const formattedDate = new Date(roomType.updatedAt).toLocaleDateString('vi-VN');
-                    return <div>{formattedDate}</div>;
-                },
-            },
-            {
                 id: 'actions',
                 enableHiding: false,
                 cell: ({ row }) => {
