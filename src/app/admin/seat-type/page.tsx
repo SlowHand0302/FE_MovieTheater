@@ -14,19 +14,26 @@ import {
     getFilteredRowModel,
 } from '@tanstack/react-table';
 
-import { CircleX, Plus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import SeatTypeForm from './components/SeatTypeForm';
 import { useSeatTypeColumns } from './components/ColDef';
 import { SeatType } from '@/interfaces/SeatType.interface';
+import { CircleX, LoaderCircle, Plus } from 'lucide-react';
 import { DataTable } from '@/components/data-table/DataTable';
 import { useConfirm } from '@/providers/ConfirmContext.provider';
 import { DataTablePagination } from '@/components/data-table/DataTablePagination';
 import { DataTableViewOptions } from '@/components/data-table/DataTableViewOptions';
-import { dummySeatTypes } from '@/features/seat-type/constants/dummyData.constant';
+
+import { queryClient } from '@/lib/queryClient.config';
+import { useSeatTypes } from '@/features/seat-type/queries';
+import { useDeleteSeatType } from '@/features/seat-type/mutations';
 
 const Page = () => {
+    const { data = [], isPending, isError } = useSeatTypes({});
+    const { mutate: deleteSeatType } = useDeleteSeatType();
+    const seatTypes = data as SeatType[];
+
     const confirm = useConfirm();
     const [selectedSeatType, setSelectedSeatType] = useState<SeatType>();
     const [openFormDialog, setOpenFormDialog] = useState<boolean>(false);
@@ -41,7 +48,7 @@ const Page = () => {
     });
 
     const table = useReactTable({
-        data: dummySeatTypes,
+        data: seatTypes,
         columns,
         onSortingChange: setSorting,
         onRowSelectionChange: setRowSelection,
@@ -62,28 +69,24 @@ const Page = () => {
         },
     });
 
-    function handleEditSeatType(SeatType: SeatType) {
-        setSelectedSeatType(SeatType);
+    function handleEditSeatType(seatType: SeatType) {
+        setSelectedSeatType(seatType);
         setOpenFormDialog(true);
     }
 
-    async function handleDeleteSeatType(SeatType: SeatType) {
+    async function handleDeleteSeatType(seatType: SeatType) {
         const confirmed = await confirm({});
         if (confirmed) {
-            toast.success('You submitted the following values:', {
-                description: (
-                    <pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
-                        <code>{JSON.stringify(SeatType, null, 2)}</code>
-                    </pre>
-                ),
-                position: 'bottom-right',
-                classNames: {
-                    content: 'flex flex-col gap-2',
+            deleteSeatType(seatType.id, {
+                onSuccess: (res) => {
+                    if (res) {
+                        queryClient.invalidateQueries({ queryKey: ['seat-types', {}] });
+                        toast.success('Delete seat type successfully', { richColors: true });
+                    }
                 },
-                style: {
-                    '--border-radius': 'calc(var(--radius)  + 4px)',
-                } as React.CSSProperties,
-                richColors: true,
+                onError: (error) => {
+                    toast.error(error.message, { richColors: true });
+                },
             });
         }
     }
@@ -93,6 +96,10 @@ const Page = () => {
             setSelectedSeatType(undefined);
         }
     }, [openFormDialog, setSelectedSeatType]);
+
+    if (isError) {
+        return <div className="text-center py-10 text-gray-600">There are some error happened.</div>;
+    }
 
     return (
         <>
@@ -126,7 +133,13 @@ const Page = () => {
                             <DataTableViewOptions table={table} />
                         </div>
                     </div>
-                    <DataTable table={table} stickyHeader={true} />
+                    {isPending ? (
+                        <div className="text-center py-10 text-gray-600 w-full">
+                            <LoaderCircle className="animate-spin text-5xl mx-auto" />
+                        </div>
+                    ) : (
+                        <DataTable table={table} stickyHeader={true} />
+                    )}
                     <DataTablePagination table={table} pageSizes={[10, 20, 30, 40, 50]} />
                 </section>
             </main>

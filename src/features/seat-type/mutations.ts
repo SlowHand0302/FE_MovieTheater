@@ -27,7 +27,7 @@ export const useUpdateSeatType = () => {
 export const useDeleteSeatType = () => {
     return useMutation({
         mutationFn: async (id: string) => {
-            return await apiClient.put<ApiResponse<null>>(`${SEAT_TYPE_ENDPOINT}/${id}`);
+            return await apiClient.delete<ApiResponse<null>>(`${SEAT_TYPE_ENDPOINT}/${id}`);
         },
     });
 };

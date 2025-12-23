@@ -7,15 +7,17 @@ import { SEAT_TYPE_ENDPOINT } from './constants';
 interface SeatTypeQueryStrings {
     Id?: string;
     Name?: string;
+    ExtraPrice?: number;
 }
 // Query all movie genres
-export const useSeatTypes = (queryString: SeatTypeQueryStrings) => {
+export const useSeatTypes = (queryString: Partial<Record<keyof SeatTypeQueryStrings, string>>) => {
+    const params = new URLSearchParams(queryString).toString();
+
     return useQuery({
-        queryKey: ['genres', queryString],
+        queryKey: ['seat-types', queryString],
         queryFn: async () => {
-            return await apiClient.get<ApiResponse<SeatType[]>>(
-                `${SEAT_TYPE_ENDPOINT}s?${JSON.stringify(queryString)}`,
-            );
+            return await apiClient.get<ApiResponse<SeatType[]>>(`${SEAT_TYPE_ENDPOINT}s?${params ? params : ''}`);
         },
+        select: (d) => d.data,
     });
 };
