@@ -1,5 +1,6 @@
 import { Auditable } from './Auditable.interface';
 import { MovieGenre } from './MovieGenre.interface';
+import { MoviePerson } from './MoviePerson.interface';
 
 export enum MovieStatus {
     COMING_SOON = 'coming_soon',
@@ -18,5 +19,6 @@ export interface Movie extends Auditable {
     poster: string;
     trailerUrl: string;
     genres: MovieGenre[];
+    persons: MoviePerson[];
     status: MovieStatus;
 }

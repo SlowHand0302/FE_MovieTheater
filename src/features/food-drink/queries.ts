@@ -15,10 +15,10 @@ export const useFoodAndDrinkList = (filters: Partial<Record<keyof FoodAndDrinkQu
     const queryString = new URLSearchParams(filters).toString();
 
     return useQuery({
-        queryKey: ['foods-and-drinks', filters],
+        queryKey: ['foods-and-drinks', queryString],
         queryFn: () =>
             apiClient.get<ApiResponse<FoodAndDrinkResultData[]>>(
-                `${FOOD_AND_DRINK_ENDPOINT}s?${queryString ? `?${queryString}` : ''}`,
+                `${FOOD_AND_DRINK_ENDPOINT}s${queryString ? `?${queryString}` : ''}`,
             ),
         select: (res) => res.data,
     });

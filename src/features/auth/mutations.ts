@@ -2,12 +2,12 @@ import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
 
-import { decodeJWT } from '@/lib/utils';
 import { apiClient } from '@/lib/apiClient';
 import { useAuthStore } from './useAuthStore';
 import { User } from '@/interfaces/User.interface';
 import { queryClient } from '@/lib/queryClient.config';
 import { ApiResponse } from '@/types/ApiResponse.type';
+import { decodeJWT } from '@/lib/utils';
 
 // Login mutation
 export const useLoginMutation = () => {
@@ -23,7 +23,6 @@ export const useLoginMutation = () => {
                 const { accessToken, refreshToken } = res.data as { accessToken: string; refreshToken: string };
                 authStore.setTokens(accessToken, refreshToken);
                 queryClient.setQueryData(['auth-user'], accessToken);
-                console.log(decodeJWT(accessToken));
                 toast.success('Login Success', {
                     richColors: true,
                 });
@@ -46,7 +45,7 @@ export const useRegisterMutation = () => {
     const authStore = useAuthStore();
 
     return useMutation({
-        mutationFn: async (data: Pick<User, 'email' | 'password' | 'fullname'>) => {
+        mutationFn: async (data: Pick<User, 'email' | 'password' | 'fullName'>) => {
             return apiClient.post<ApiResponse<{ userId: string }>>('/register', data);
         },
         onSuccess: (res) => {
@@ -70,20 +69,26 @@ export const useRegisterMutation = () => {
 // Logout mutation
 export const useLogoutMutation = () => {
     const router = useRouter();
-    const authStore = useAuthStore.getState();
+    const { accessToken, logout } = useAuthStore.getState();
 
     return useMutation({
         mutationFn: async () => {
             return await apiClient.post('/sign-out');
         },
         onSuccess: () => {
-            authStore.logout();
-            queryClient.clear();
+            let route = '/';
+            if (accessToken) {
+                const decoded = decodeJWT(accessToken);
+                const role = decoded.role;
+                route = role === 'admin' ? '/login' : '/';
+            }
+            logout();
 
+            // const role = decoded?.role
             toast.success('Logout Success', {
                 richColors: true,
             });
-            router.push('/login');
+            router.push(route);
         },
         onError: (error) => {
             toast.error(error.message, {
@@ -168,6 +173,22 @@ export const useVerifyPassword = () => {
         },
         onError: (error) => {
             toast.error(error.message, {
+                richColors: true,
+            });
+        },
+    });
+};
+
+export const useRefreshAccessToken = () => {
+    const authStore = useAuthStore();
+
+    return useMutation({
+        mutationFn: async () => {
+            return await apiClient.refreshAccessToken();
+        },
+        onError: () => {
+            authStore.logout();
+            toast.warning('Your login session is expired. Please Sign-in again', {
                 richColors: true,
             });
         },
