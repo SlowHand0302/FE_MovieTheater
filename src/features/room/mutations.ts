@@ -8,7 +8,7 @@ import { ROOM_ENDPOINT } from './constants';
 // Create Room mutation
 export const useCreateRoom = () => {
     return useMutation({
-        mutationFn: async (data: Omit<Room, keyof Auditable | 'roomType'>) => {
+        mutationFn: async (data: Omit<Room, keyof Auditable | 'roomType'> & { roomTypeId: string }) => {
             return await apiClient.post<ApiResponse<Room>>(ROOM_ENDPOINT, data);
         },
     });
@@ -17,7 +17,13 @@ export const useCreateRoom = () => {
 // Update Single Room mutation
 export const useUpdateRoom = () => {
     return useMutation({
-        mutationFn: async ({ data, id }: { data: Omit<Room, keyof Auditable>; id: string }) => {
+        mutationFn: async ({
+            id,
+            data,
+        }: {
+            id: string;
+            data: Omit<Room, keyof Auditable | 'roomType'> & { roomTypeId: string };
+        }) => {
             return await apiClient.put<ApiResponse<Room>>(`${ROOM_ENDPOINT}/${id}`, data);
         },
     });

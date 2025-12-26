@@ -14,8 +14,9 @@ import {
     getPaginationRowModel,
     getFacetedRowModel,
     getFacetedUniqueValues,
+    Row,
 } from '@tanstack/react-table';
-import { CircleX, Plus } from 'lucide-react';
+import { CircleX, LoaderCircle, Plus } from 'lucide-react';
 import RoomForm from './components/RoomForm';
 import { Button } from '@/components/ui/button';
 import CinemaCard from './components/CinemaCard';
@@ -30,21 +31,25 @@ import { useRooms } from '@/features/room/queries';
 import { RoomType } from '@/interfaces/RoomType.interface';
 import { useRoomTypes } from '@/features/room-type/queries';
 import { Room, RoomStatus } from '@/interfaces/Room.interface';
+import { useDeleteRoom } from '@/features/room/mutations';
+import { queryClient } from '@/lib/queryClient.config';
 
 const Page = () => {
-    const confirm = useConfirm();
     const router = useRouter();
-    const dynamicParams = useParams();
+    const confirm = useConfirm();
+    const { id: cinemaId } = useParams<{ id: string }>();
+
     const {
         data: roomData = [],
-        isPending,
-        isError,
-    } = useRooms({ cinemaId: dynamicParams.id?.toString(), filters: {} });
+        isPending: roomPending,
+        isError: roomError,
+    } = useRooms({ cinemaId: cinemaId, queryString: {} });
     const { data: roomTypeData = [], isPending: roomTypePending, isError: roomTypeError } = useRoomTypes({});
-
     const rooms = roomData as Room[];
     const roomTypes = roomTypeData as RoomType[];
     const filterOptions = roomTypes.map((item) => ({ label: item.type, value: item.type }));
+
+    const { mutate: deleteRoom } = useDeleteRoom();
 
     const [selectedRoom, setSelectedRoom] = useState<Room>();
     const [openFormDialog, setOpenFormDialog] = useState<boolean>(false);
@@ -91,22 +96,27 @@ const Page = () => {
     async function handleDeleteRoom(room: Room) {
         const confirmed = await confirm({});
         if (confirmed) {
-            toast.success('You submitted the following values:', {
-                description: (
-                    <pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
-                        <code>{JSON.stringify(room, null, 2)}</code>
-                    </pre>
-                ),
-                position: 'bottom-right',
-                classNames: {
-                    content: 'flex flex-col gap-2',
+            deleteRoom(room.id, {
+                onSuccess: (res) => {
+                    if (res) {
+                        toast.success(`Deleted cinema ${room.roomNumber} successfully`, {
+                            richColors: true,
+                        });
+                        queryClient.invalidateQueries({ queryKey: ['rooms', cinemaId] });
+                    }
                 },
-                style: {
-                    '--border-radius': 'calc(var(--radius)  + 4px)',
-                } as React.CSSProperties,
-                richColors: true,
+                onError: (error) => {
+                    toast.error(error.message, {
+                        richColors: true,
+                    });
+                },
             });
         }
+    }
+
+    function handleOnTableRowClick(row: Row<Room>) {
+        const room = row.original;
+        router.push(`/admin/cinema/${cinemaId}/room/${room.id}`);
     }
 
     useEffect(() => {
@@ -115,47 +125,56 @@ const Page = () => {
         }
     }, [openFormDialog, setSelectedRoom]);
 
+    if (roomError || roomTypeError)
+        return <div className="py-8 text-center text-destructive">Something wrong happened.</div>;
+
     return (
         <>
             <main className="p-3 space-y-2">
                 <CinemaCard />
-                <section className="w-full space-y-2">
-                    <div className="flex items-center gap-2">
-                        <DataTableColFilter
-                            column={table.getColumn('status')}
-                            variant="multiple"
-                            options={Object.values(RoomStatus).map((item) => ({ label: item, value: item }))}
-                        />
-                        <DataTableColFilter
-                            label="Type"
-                            column={table.getColumn('roomTypeId')}
-                            variant="multiple"
-                            options={filterOptions}
-                        />
-                        {columnFilters.length > 0 || Object.keys(columnVisibility).length > 0 ? (
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                className="hidden capitalize lg:flex"
-                                onClick={() => {
-                                    table.resetColumnFilters(true);
-                                    table.resetColumnVisibility(true);
-                                }}
-                            >
-                                <CircleX /> Reset
-                            </Button>
-                        ) : null}
-                        <div className="ml-auto flex gap-2 items-center">
-                            <Button variant="outline" size="sm" onClick={() => setOpenFormDialog(true)}>
-                                <Plus />
-                                Create
-                            </Button>
-                            <DataTableViewOptions table={table} />
-                        </div>
+                {roomPending || roomTypePending ? (
+                    <div className="text-center py-10 text-gray-600 w-full">
+                        <LoaderCircle className="animate-spin text-5xl mx-auto" />
                     </div>
-                    <DataTable table={table} stickyHeader={true} />
-                    <DataTablePagination table={table} pageSizes={[10, 20, 30, 40, 50]} />
-                </section>
+                ) : (
+                    <section className="w-full space-y-2">
+                        <div className="flex items-center gap-2">
+                            <DataTableColFilter
+                                column={table.getColumn('status')}
+                                variant="multiple"
+                                options={Object.values(RoomStatus).map((item) => ({ label: item, value: item }))}
+                            />
+                            <DataTableColFilter
+                                label="Type"
+                                column={table.getColumn('roomTypeId')}
+                                variant="multiple"
+                                options={filterOptions}
+                            />
+                            {columnFilters.length > 0 || Object.keys(columnVisibility).length > 0 ? (
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="hidden capitalize lg:flex"
+                                    onClick={() => {
+                                        table.resetColumnFilters(true);
+                                        table.resetColumnVisibility(true);
+                                    }}
+                                >
+                                    <CircleX /> Reset
+                                </Button>
+                            ) : null}
+                            <div className="ml-auto flex gap-2 items-center">
+                                <Button variant="outline" size="sm" onClick={() => setOpenFormDialog(true)}>
+                                    <Plus />
+                                    Create
+                                </Button>
+                                <DataTableViewOptions table={table} />
+                            </div>
+                        </div>
+                        <DataTable table={table} stickyHeader={true} onRowClick={handleOnTableRowClick} />
+                        <DataTablePagination table={table} pageSizes={[10, 20, 30, 40, 50]} />
+                    </section>
+                )}
             </main>
             <RoomForm room={selectedRoom} openForm={openFormDialog} setOpenForm={setOpenFormDialog} />
         </>

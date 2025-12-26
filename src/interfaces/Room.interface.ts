@@ -1,9 +1,9 @@
 import { Auditable } from './Auditable.interface';
 
 export enum RoomStatus {
-    ACTIVE = 'Active',
-    INACTIVE = 'Inactive',
-    MAINTENANCE = 'Maintenance',
+    ACTIVE = 'active',
+    INACTIVE = 'inactive',
+    MAINTENANCE = 'maintenance',
 }
 
 export interface Room extends Auditable {

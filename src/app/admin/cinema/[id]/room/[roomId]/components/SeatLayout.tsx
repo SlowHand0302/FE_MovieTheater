@@ -21,7 +21,7 @@ export type EditMode = 'select' | 'add' | 'delete' | 'toggle-active' | 'change-t
 
 const CinemaSeatAdmin: React.FC = () => {
     const dynamicParams = useParams();
-    const room = dummyRooms.filter((item) => item.id === dynamicParams.roomId)[0];
+    const room = dummyRooms[0];
 
     const [seats, setSeats] = useState<ISeat[]>(generateMockSeats(room));
     const [editMode, setEditMode] = useState<EditMode>('select');
@@ -155,8 +155,8 @@ const CinemaSeatAdmin: React.FC = () => {
 
     const resetSeatLayout = () => {
         setSeats(generateMockSeats(room));
-        setColumns(room.total_Column);
-        setRows(room.total_Row);
+        setColumns(room.totalColumn);
+        setRows(room.totalRow);
     };
 
     const groupedSeats = seats.reduce(

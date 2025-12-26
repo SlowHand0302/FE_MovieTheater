@@ -13,21 +13,34 @@ interface RoomQueryStrings {
 // Query Rooms by query string
 export const useRooms = ({
     cinemaId,
-    filters,
+    queryString,
 }: {
     cinemaId?: string;
-    filters: Partial<Record<keyof RoomQueryStrings, string>>;
+    queryString: Partial<Record<keyof Omit<RoomQueryStrings, 'Id'>, string>>;
 }) => {
-    const queryString = new URLSearchParams(filters).toString();
+    const params = new URLSearchParams(queryString).toString();
 
     return useQuery({
-        queryKey: ['rooms', cinemaId, queryString],
+        queryKey: ['rooms', cinemaId, params],
         queryFn: async () => {
-            return apiClient.get<ApiResponse<Room[]>>(
-                `${ROOM_ENDPOINT}s/${cinemaId}${queryString ? `?${queryString}` : ''}`,
-            );
+            return apiClient.get<ApiResponse<Room[]>>(`${ROOM_ENDPOINT}s/${cinemaId}${params ? `?${params}` : ''}`);
         },
         enabled: !!cinemaId,
         select: (d) => d.data,
+    });
+};
+
+// Query room by room id
+export const useRoom = ({ cinemaId, roomId }: { cinemaId?: string; roomId?: string }) => {
+    const queryString: Partial<Record<keyof Pick<RoomQueryStrings, 'Id'>, string>> = { Id: roomId };
+    const params = new URLSearchParams(queryString).toString();
+
+    return useQuery({
+        queryKey: ['room', cinemaId, roomId],
+        queryFn: async () => {
+            return apiClient.get<ApiResponse<Room>>(`${ROOM_ENDPOINT}s/${cinemaId}${params ? `?${params}` : ''}`);
+        },
+        enabled: !!cinemaId && !!roomId,
+        select: (d) => (Array.isArray(d.data) ? d.data[0] : d.data),
     });
 };

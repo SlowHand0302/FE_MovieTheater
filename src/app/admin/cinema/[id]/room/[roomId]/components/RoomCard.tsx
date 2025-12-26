@@ -1,31 +1,26 @@
 import React from 'react';
+import { useParams } from 'next/navigation';
 
 import RoomBadge from '../../../components/RoomBadge';
+import { Film, Grid3x3, Building2, Users, Tag } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Film, Grid3x3, Calendar, User, Building2, Users, Tag } from 'lucide-react';
 
+import { useRoom } from '@/features/room/queries';
 import { Room } from '@/interfaces/Room.interface';
-import { dummyCinemas } from '@/features/cinema/constants/dummyData.constant';
-import { dummyRoomTypes } from '@/features/room-type/constants/dummyData.constant';
+import { useCinema } from '@/features/cinema/queries';
+import { Cinema } from '@/interfaces/Cinema.interface';
 
-interface RoomCardProps {
-    room: Room;
-}
+const RoomCard = () => {
+    const { id: cinemaId, roomId } = useParams<{ id: string; roomId: string }>();
+    const { data: roomData = {}, isPending: roomPending, isError: roomError } = useRoom({ cinemaId, roomId });
+    const { data: cinemaData, isPending: cinemaPending, isError: cinemaError } = useCinema(cinemaId);
 
-const RoomCard = ({ room }: RoomCardProps) => {
-    const cinema = dummyCinemas.filter((cinema) => cinema.id === room.cinemaId)[0];
-    const roomType = dummyRoomTypes.filter((type) => type.id === room.roomTypeId)[0];
-    const totalSeats = room.total_Column * room.total_Row;
+    const cinema = cinemaData as Cinema;
+    const room = roomData as Room;
+    const totalSeats = room.totalColumn * room.totalRow;
 
-    const formatDate = (date: Date) => {
-        return new Intl.DateTimeFormat('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-        }).format(date);
-    };
+    if (roomPending || cinemaPending) return <div>Loading...</div>;
+    if (roomError || cinemaError) return <div>Something wrong happened.</div>;
 
     return (
         <div className="flex items-center justify-center">
@@ -65,7 +60,7 @@ const RoomCard = ({ room }: RoomCardProps) => {
                                     <Building2 className="w-4 h-4 text-purple-600" />
                                     <p className="text-xs font-semibold text-purple-900">Cinema ID</p>
                                 </div>
-                                <p className="text-sm font-mono text-purple-700">{room.cinemaId}</p>
+                                <p className="text-sm font-mono text-purple-700">{cinema.id}</p>
                             </div>
 
                             <div className="bg-pink-50 rounded-lg p-4 border flex-1 border-pink-100">
@@ -73,32 +68,7 @@ const RoomCard = ({ room }: RoomCardProps) => {
                                     <Tag className="w-4 h-4 text-pink-600" />
                                     <p className="text-xs font-semibold text-pink-900">Room Type</p>
                                 </div>
-                                <p className="text-sm font-mono text-pink-700">{roomType.type}</p>
-                            </div>
-                        </div>
-                        <div className="flex gap-3 border-t pt-3">
-                            <div className="flex-1 flex items-start space-x-3 bg-gray-50 p-4 rounded-lg">
-                                <Calendar className="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0" />
-                                <div>
-                                    <p className="text-xs font-semibold text-gray-600">Created</p>
-                                    <p className="text-sm text-gray-700 mt-0.5">{formatDate(room.createdAt)}</p>
-                                    <div className="flex items-center space-x-1 mt-2">
-                                        <User className="w-3 h-3 text-gray-400" />
-                                        <p className="text-xs text-gray-500">By: {room.createdBy}</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="flex-1 flex items-start space-x-3 bg-gray-50 p-4 rounded-lg">
-                                <Calendar className="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0" />
-                                <div>
-                                    <p className="text-xs font-semibold text-gray-600">Last Updated</p>
-                                    <p className="text-sm text-gray-700 mt-0.5">{formatDate(room.updatedAt)}</p>
-                                    <div className="flex items-center space-x-1 mt-2">
-                                        <User className="w-3 h-3 text-gray-400" />
-                                        <p className="text-xs text-gray-500">By: {room.updatedBy}</p>
-                                    </div>
-                                </div>
+                                <p className="text-sm font-bold text-pink-700">{room.roomType}</p>
                             </div>
                         </div>
                     </div>
@@ -113,11 +83,11 @@ const RoomCard = ({ room }: RoomCardProps) => {
                             <div className="space-y-3">
                                 <div className="flex justify-between items-center">
                                     <span className="text-xs text-gray-600">Rows</span>
-                                    <span className="text-lg font-bold text-blue-700">{room.total_Row}</span>
+                                    <span className="text-lg font-bold text-blue-700">{room.totalRow}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                     <span className="text-xs text-gray-600">Columns</span>
-                                    <span className="text-lg font-bold text-blue-700">{room.total_Column}</span>
+                                    <span className="text-lg font-bold text-blue-700">{room.totalColumn}</span>
                                 </div>
                                 <div className="pt-2 border-t border-blue-200">
                                     <div className="flex justify-between items-center">

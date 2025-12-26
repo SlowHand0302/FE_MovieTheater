@@ -4,8 +4,8 @@ import { Seat, SeatStatus } from '@/interfaces/Seat.interface';
 export const generateMockSeats = (room: Room): Seat[] => {
     const seats: Seat[] = [];
 
-    Array.from({ length: room.total_Row }).forEach((_, index) => {
-        for (let col = 1; col <= room.total_Column; col++) {
+    Array.from({ length: room.totalRow }).forEach((_, index) => {
+        for (let col = 1; col <= room.totalColumn; col++) {
             seats.push({
                 label: String.fromCharCode(65 + index).toUpperCase(),
                 columnIndex: col,

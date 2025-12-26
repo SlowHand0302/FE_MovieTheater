@@ -83,7 +83,7 @@ export const useRoomColumns = ({ onEdit, onViewDetails, onDelete, onCopyId }: Pa
                 },
                 cell: ({ row }) => {
                     const state = row.getValue('status') as RoomStatus;
-                    return <RoomBadge status={state} />;
+                    return <RoomBadge status={state} className="capitalize" />;
                 },
                 filterFn: (row, _, filterValue) => {
                     return filterValue.length === 0 ? row.original.status : filterValue.includes(row.original.status); // true or false based on your custom logic
