@@ -8,7 +8,7 @@ interface RoomBadgeProps extends React.ComponentProps<typeof Badge> {
 }
 
 const RoomBadge = ({ status, className, ...props }: RoomBadgeProps) => {
-    switch (status) {
+    switch (status.toLowerCase()) {
         case 'active':
             return (
                 <Badge {...props} className={cn('bg-green-500 text-white hover:bg-green-600', className)}>

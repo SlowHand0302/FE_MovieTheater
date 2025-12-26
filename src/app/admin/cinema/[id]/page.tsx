@@ -19,22 +19,33 @@ import { CircleX, Plus } from 'lucide-react';
 import RoomForm from './components/RoomForm';
 import { Button } from '@/components/ui/button';
 import CinemaCard from './components/CinemaCard';
+import { useRoomColumns } from './components/ColDef';
 import { DataTable } from '@/components/data-table/DataTable';
+import { useConfirm } from '@/providers/ConfirmContext.provider';
 import { DataTableColFilter } from '@/components/data-table/DataTableColFilter';
 import { DataTablePagination } from '@/components/data-table/DataTablePagination';
 import { DataTableViewOptions } from '@/components/data-table/DataTableViewOptions';
 
-import { useRoomColumns } from './components/ColDef';
+import { useRooms } from '@/features/room/queries';
+import { RoomType } from '@/interfaces/RoomType.interface';
+import { useRoomTypes } from '@/features/room-type/queries';
 import { Room, RoomStatus } from '@/interfaces/Room.interface';
-import { useConfirm } from '@/providers/ConfirmContext.provider';
-import { dummyRooms } from '@/features/room/constants/dummyData.constant';
-import { dummyRoomTypes } from '@/features/room-type/constants/dummyData.constant';
-import { dummyCinemas } from '@/features/cinema/constants/dummyData.constant';
 
 const Page = () => {
     const confirm = useConfirm();
     const router = useRouter();
     const dynamicParams = useParams();
+    const {
+        data: roomData = [],
+        isPending,
+        isError,
+    } = useRooms({ cinemaId: dynamicParams.id?.toString(), filters: {} });
+    const { data: roomTypeData = [], isPending: roomTypePending, isError: roomTypeError } = useRoomTypes({});
+
+    const rooms = roomData as Room[];
+    const roomTypes = roomTypeData as RoomType[];
+    const filterOptions = roomTypes.map((item) => ({ label: item.type, value: item.type }));
+
     const [selectedRoom, setSelectedRoom] = useState<Room>();
     const [openFormDialog, setOpenFormDialog] = useState<boolean>(false);
 
@@ -51,7 +62,7 @@ const Page = () => {
     });
 
     const table = useReactTable({
-        data: dummyRooms,
+        data: rooms,
         columns,
         onSortingChange: setSorting,
         onRowSelectionChange: setRowSelection,
@@ -107,7 +118,7 @@ const Page = () => {
     return (
         <>
             <main className="p-3 space-y-2">
-                <CinemaCard cinema={dummyCinemas.filter((item) => item.id === dynamicParams.id)[0]} />
+                <CinemaCard />
                 <section className="w-full space-y-2">
                     <div className="flex items-center gap-2">
                         <DataTableColFilter
@@ -119,7 +130,7 @@ const Page = () => {
                             label="Type"
                             column={table.getColumn('roomTypeId')}
                             variant="multiple"
-                            options={dummyRoomTypes.map((item) => ({ label: item.type, value: item.id }))}
+                            options={filterOptions}
                         />
                         {columnFilters.length > 0 || Object.keys(columnVisibility).length > 0 ? (
                             <Button

@@ -1,17 +1,16 @@
 import { Auditable } from './Auditable.interface';
 
 export enum RoomStatus {
-    ACTIVE = 'active',
-    INACTIVE = 'inactive',
-    MAINTENANCE = 'maintenance',
-    CLOSED = 'closed',
+    ACTIVE = 'Active',
+    INACTIVE = 'Inactive',
+    MAINTENANCE = 'Maintenance',
 }
 
 export interface Room extends Auditable {
     roomNumber: number;
     status: RoomStatus;
     cinemaId: string;
-    roomTypeId: string;
-    total_Column: number;
-    total_Row: number;
+    roomType: string;
+    totalColumn: number;
+    totalRow: number;
 }

@@ -8,7 +8,7 @@ import { ROOM_ENDPOINT } from './constants';
 // Create Room mutation
 export const useCreateRoom = () => {
     return useMutation({
-        mutationFn: async (data: Omit<Room, keyof Auditable>) => {
+        mutationFn: async (data: Omit<Room, keyof Auditable | 'roomType'>) => {
             return await apiClient.post<ApiResponse<Room>>(ROOM_ENDPOINT, data);
         },
     });
