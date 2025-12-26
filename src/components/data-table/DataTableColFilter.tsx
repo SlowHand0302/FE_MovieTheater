@@ -46,7 +46,7 @@ export function DataTableColFilter<TData>({ column, variant, options, label }: D
                     <FunnelPlus /> {label || column?.id}
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-fit">
+            <DropdownMenuContent align="center" className="w-fit">
                 <DropdownMenuLabel className="capitalize">{label || column?.id} Filter</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {variant === 'single' && (

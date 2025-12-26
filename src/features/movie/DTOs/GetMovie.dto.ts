@@ -1,3 +1,5 @@
+import { MovieStatus } from '@/interfaces/Movie.interface';
+
 export interface MovieBaseResultData {
     id: string; // Guid → string
     name: string;
@@ -9,7 +11,7 @@ export interface MovieBaseResultData {
     language: string | null;
     poster: string | null; // URL or path
     trailerUrl: string | null;
-    status: string;
+    status: MovieStatus;
 
     genres: MovieGenreDataResult[];
     persons: MoviePersonDataResult[];

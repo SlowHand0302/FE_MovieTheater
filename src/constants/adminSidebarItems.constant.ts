@@ -8,6 +8,7 @@ import {
     IconUserCog,
     IconHelp,
     IconSettings,
+    IconMovie,
 } from '@tabler/icons-react';
 
 export const navMain: NavItem[] = [
@@ -46,6 +47,11 @@ export const navManagement: NavItem[] = [
         name: 'Cinema',
         url: '/admin/cinema',
         icon: IconMapPinCog,
+    },
+    {
+        name: 'Movie',
+        url: '/admin/movie',
+        icon: IconMovie,
     },
     {
         name: 'Categories',

@@ -3,6 +3,7 @@ import { MOVIE_ENDPOINT } from './constants';
 import { useQuery } from '@tanstack/react-query';
 import { ApiResponse } from '@/types/ApiResponse.type';
 import { MovieBaseResultData } from './DTOs/GetMovie.dto';
+import { Person } from '@/interfaces/Person.interface';
 
 interface MovieQueryStrings {
     Id?: string;
@@ -15,7 +16,17 @@ export const useMovieList = (filters: Partial<Record<keyof Omit<MovieQueryString
     const params = new URLSearchParams(filters).toString();
     return useQuery({
         queryKey: ['movie-list', filters],
-        queryFn: () => apiClient.get<ApiResponse<MovieBaseResultData[]>>(`${MOVIE_ENDPOINT}s?${params}`),
+        queryFn: () => apiClient.get<ApiResponse<MovieBaseResultData[]>>(`${MOVIE_ENDPOINT}s?${params ? params : ''}`),
+        select: (d) => d.data,
+    });
+};
+
+// hooks/useMovieList.ts
+export const useMoviePersons = (filters: Partial<Record<keyof Pick<MovieQueryStrings, 'Name'>, string>> = {}) => {
+    const params = new URLSearchParams(filters).toString();
+    return useQuery({
+        queryKey: ['movie-persons', filters],
+        queryFn: () => apiClient.get<ApiResponse<Person[]>>(`/persons?${params ? params : ''}`),
         select: (d) => d.data,
     });
 };
