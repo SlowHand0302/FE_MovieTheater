@@ -26,7 +26,7 @@ export const useLoginMutation = () => {
                 toast.success('Login Success', {
                     richColors: true,
                 });
-                router.push('/');
+                router.push('/admin/dashboard');
             }
         },
         onError: (error) => {

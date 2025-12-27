@@ -60,9 +60,9 @@ export const useRoomTypeColumns = ({ onEdit, onDelete, onCopyId }: Partial<useRo
                 },
             },
             {
-                accessorKey: 'basePrice',
+                accessorKey: 'extraPrice',
                 header: ({ column }) => {
-                    return <SortableHeader column={column}>Base Price</SortableHeader>;
+                    return <SortableHeader column={column}>Extra Price</SortableHeader>;
                 },
             },
             {

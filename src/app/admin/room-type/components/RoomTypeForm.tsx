@@ -24,7 +24,7 @@ import { LoaderCircle } from 'lucide-react';
 
 const roomTypeFormSchema = z.object({
     type: z.string().nonempty('Room Type Name required'),
-    basePrice: z.number().nonnegative('The price must not be negative').gt(0, 'The price must larger than 0'),
+    extraPrice: z.number().nonnegative('The price must not be negative').gt(0, 'The price must larger than 0'),
 });
 
 interface RoomTypeFormProps {
@@ -41,7 +41,7 @@ const RoomTypeForm = ({ roomType, openForm, setOpenForm }: RoomTypeFormProps) =>
         resolver: zodResolver(roomTypeFormSchema),
         defaultValues: {
             type: '',
-            basePrice: 0,
+            extraPrice: 0,
         },
     });
 
@@ -117,7 +117,7 @@ const RoomTypeForm = ({ roomType, openForm, setOpenForm }: RoomTypeFormProps) =>
                             )}
                         />
                         <Controller
-                            name="basePrice"
+                            name="extraPrice"
                             control={form.control}
                             render={({ field, fieldState }) => (
                                 <Field data-invalid={fieldState.invalid} className="gap-1">

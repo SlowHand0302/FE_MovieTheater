@@ -7,7 +7,7 @@ import { ROOM_TYPE_ENDPOINT } from './constants';
 interface RoomTypeQueryStrings {
     Id?: string;
     Type?: string;
-    BasePrice?: string;
+    ExtraPrice?: string;
 }
 // Query all movie genres
 export const useRoomTypes = (queryString: Partial<Record<keyof RoomTypeQueryStrings, string>>) => {
