@@ -22,7 +22,7 @@ const SeatLayoutStats = ({ seats, seatTypes }: SeatLayoutStatsProps) => {
                 return (
                     <div key={type.id} className="flex justify-between">
                         <span className="capitalize">{type.type}: </span>
-                        <span className="">{seats.filter((s) => s.seatTypeId === type.id).length}</span>
+                        <span className="">{seats.filter((s) => s.seatType === type.type).length}</span>
                     </div>
                 );
             })}

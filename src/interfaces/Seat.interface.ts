@@ -1,18 +1,17 @@
-import { Auditable } from './Auditable.interface';
-
 export enum SeatStatus {
     AVAILABLE = 'available',
     BOOKED = 'booked',
     RESERVED = 'reserved',
 }
 
-export interface Seat extends Auditable {
+export interface Seat {
+    id: string;
     label: string;
     columnIndex: number;
     displayNumber: number;
     seatCode: string;
     isActive: boolean;
     status: SeatStatus;
-    seatTypeId: string;
+    seatType: string;
     roomId: string;
 }

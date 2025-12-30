@@ -1,99 +1,86 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { useParams } from 'next/navigation';
 
 import Seat from './Seat';
+import { toast } from 'sonner';
 import EmptySeat from './EmptySeat';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import SeatLayoutStats from './SeatLayoutStats';
 import SeatLayoutLegend from './SeatLayoutLegend';
 import SeatTypeButtonGroup from './SeatTypeButtonGroup';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Trash2, Plus, Save, RotateCcw, SquarePower, MousePointerClick, Sparkles } from 'lucide-react';
+import { Trash2, Plus, Save, RotateCcw, SquarePower, MousePointerClick, Sparkles, Loader2 } from 'lucide-react';
 
-import { SeatStatus, Seat as ISeat } from '@/interfaces/Seat.interface';
+import { Seat as ISeat } from '@/interfaces/Seat.interface';
 import { dummySeatTypes } from '@/features/seat-type/constants/dummyData.constant';
-import { dummyRooms } from '@/features/room/constants/dummyData.constant';
-import { generateMockSeats } from '@/features/seat/constant/dummyData.constant';
+import { useSeatsByRoom } from '@/features/seat/queries';
+import { useSeatTypes } from '@/features/seat-type/queries';
+import { SeatType } from '@/interfaces/SeatType.interface';
+import { queryClient } from '@/lib/queryClient.config';
+import { usePatchSeat } from '@/features/seat/mutations';
+import { LayoutEditModeEnum, useSeatLayoutStore } from '@/features/seat/useLayoutStore';
 
 export type EditMode = 'select' | 'add' | 'delete' | 'toggle-active' | 'change-type';
 
 const CinemaSeatAdmin: React.FC = () => {
-    const dynamicParams = useParams();
-    const room = dummyRooms[0];
+    const { roomId } = useParams<{ id: string; roomId: string }>();
+    const {
+        data: remoteSeatsData = [],
+        isPending: remoteSeatsPending,
+        isError: remoteSeatsError,
+    } = useSeatsByRoom(roomId);
+    const { data: seatTypesData = [], isPending: seatTypesPending, isError: seatTypesError } = useSeatTypes({});
+    const fetchedSeatTypes = seatTypesData as SeatType[];
+    const fetchedRemoteSeats = remoteSeatsData as ISeat[];
 
-    const [seats, setSeats] = useState<ISeat[]>(generateMockSeats(room));
-    const [editMode, setEditMode] = useState<EditMode>('select');
-    const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
-    const [selectedSeatTypeId, setSelectedSeatTypeId] = useState<string>(dummySeatTypes[0].id);
-    const [rows, setRows] = useState(8);
-    const [columns, setColumns] = useState(12);
+    const { mutateAsync: patchSeatAsync } = usePatchSeat();
 
-    const handleSeatClick = (seat: ISeat) => {
-        if (editMode === 'select') {
-            setSelectedSeats((prev) =>
-                prev.includes(seat.seatCode) ? prev.filter((code) => code !== seat.seatCode) : [...prev, seat.seatCode],
-            );
-        } else if (editMode === 'delete') {
-            setSeats((prev) => prev.filter((s) => s.seatCode !== seat.seatCode));
-            setSelectedSeats((prev) => prev.filter((code) => code !== seat.seatCode));
-        } else if (editMode === 'toggle-active') {
-            setSeats((prev) => prev.map((s) => (s.seatCode === seat.seatCode ? { ...s, isActive: !s.isActive } : s)));
-        } else if (editMode === 'change-type') {
-            setSeats((prev) =>
-                prev.map((s) => (s.seatCode === seat.seatCode ? { ...s, seatTypeId: selectedSeatTypeId } : s)),
-            );
-        }
-    };
-
-    const handleEmptyCellClick = (row: string, col: number) => {
-        if (editMode === 'add') {
-            const seatCode = `${row}${col}`;
-            if (!seats.find((s) => s.seatCode === seatCode)) {
-                const newSeat: ISeat = {
-                    label: row,
-                    columnIndex: col,
-                    displayNumber: col,
-                    seatCode,
-                    isActive: true,
-                    status: SeatStatus.AVAILABLE,
-                    seatTypeId: 'st-001',
-                    roomId: 'room-1',
-                    id: 'seat-001',
-                    createdAt: new Date('2023-06-16T09:00:00Z'),
-                    updatedAt: new Date('2023-06-16T09:00:00Z'),
-                    createdBy: 'usr_001',
-                    updatedBy: 'usr_001',
-                    isDeleted: false,
-                };
-                setSeats((prev) => [...prev, newSeat]);
-            }
-        }
-    };
+    const {
+        seatTypes,
+        localSeats,
+        initializeFromAPI,
+        rows,
+        selectRow,
+        columns,
+        selectColumn,
+        editMode,
+        setEditMode,
+        handleSeatClick,
+        selectedSeatTypeId,
+        setSelectedSeatTypeId,
+        selectedSeats,
+        deleteSeatSelected,
+        changeTypeSeatSelected,
+        toggleActiveSeatSelected,
+        resetLayout,
+        getChangeSummary,
+        getChanges,
+        hasUnsavedChanges,
+    } = useSeatLayoutStore();
 
     const getSeatColor = (seat: ISeat) => {
+        if (selectedSeats.findIndex((s) => s.id === seat.id) !== -1) {
+            return 'bg-green-500 ring-4 ring-green-300';
+        }
         if (!seat.isActive) {
             return 'bg-gray-300 border-2 border-gray-400 opacity-50';
         }
-        if (selectedSeats.includes(seat.seatCode)) {
-            return 'bg-green-500 ring-4 ring-green-300';
-        }
         let color: string = '';
-        switch (seat.seatTypeId) {
-            case 'st-001':
+        switch (seat.seatType.toLowerCase()) {
+            case 'standard':
                 color = 'bg-blue-400 hover:bg-blue-500';
                 break;
-            case 'st-002':
+            case 'premium':
                 color = 'bg-purple-400 hover:bg-purple-500';
                 break;
-            case 'st-003':
+            case 'recliner':
                 color = 'bg-yellow-400 hover:bg-yellow-500';
                 break;
-            case 'st-004':
+            case 'vip sofa':
                 color = 'bg-pink-400 hover:bg-pink-500';
                 break;
-            case 'st-005':
+            case 'loveseat':
                 color = 'bg-orange-400 hover:bg-orange-500';
                 break;
             default:
@@ -103,66 +90,85 @@ const CinemaSeatAdmin: React.FC = () => {
         return color;
     };
 
-    const regenerateLayout = () => {
-        const newSeats: ISeat[] = [];
-        const rowLabels = Array.from({ length: rows }, (_, i) => String.fromCharCode(65 + i));
+    const saveLayout = async () => {
+        try {
+            const changes = getChanges();
 
-        rowLabels.forEach((row) => {
-            for (let col = 1; col <= columns; col++) {
-                newSeats.push({
-                    label: row,
-                    columnIndex: col,
-                    displayNumber: col,
-                    seatCode: `${row}${col}`,
-                    isActive: true,
-                    status: SeatStatus.AVAILABLE,
-                    seatTypeId: 'st-001',
-                    roomId: 'room-1',
-                    id: 'seat-001',
-                    createdAt: new Date('2023-06-16T09:00:00Z'),
-                    updatedAt: new Date('2023-06-16T09:00:00Z'),
-                    createdBy: 'usr_001',
-                    updatedBy: 'usr_001',
-                    isDeleted: false,
-                });
+            // Save all changes in sequence
+            const promises = [];
+
+            // Handle activation changes
+            if (changes.activatedSeats.size > 0) {
+                promises.push(
+                    patchSeatAsync({
+                        data: {
+                            ids: Array.from(changes.activatedSeats),
+                            isActive: true,
+                        },
+                    }),
+                );
             }
-        });
 
-        setSeats(newSeats);
-        setSelectedSeats([]);
+            // Handle deactivation changes
+            if (changes.deactivatedSeats.size > 0) {
+                promises.push(
+                    patchSeatAsync({
+                        data: {
+                            ids: Array.from(changes.deactivatedSeats),
+                            isActive: false,
+                        },
+                    }),
+                );
+            }
+
+            // Handle type changes (group by new type)
+            const typeGroups = new Map<string, string[]>();
+            changes.typeChanges.forEach((newType, seatId) => {
+                const newTypeId = seatTypes.filter((type) => type.type === newType)[0]?.id ?? seatTypes[0]?.id;
+                if (!typeGroups.has(newTypeId)) {
+                    typeGroups.set(newTypeId, []);
+                }
+                typeGroups.get(newTypeId)!.push(seatId);
+            });
+            console.log(typeGroups);
+
+            typeGroups.forEach((seatIds, typeId) => {
+                const seat = localSeats.find((s) => seatIds.includes(s.id!));
+                promises.push(
+                    patchSeatAsync({
+                        data: {
+                            ids: seatIds,
+                            isActive: seat?.isActive ?? true,
+                            seatTypeId: typeId,
+                        },
+                    }),
+                );
+            });
+
+            // TODO: Handle deletedSeats and addedSeats when you have DELETE and POST endpoints
+            if (changes.deletedSeats.size > 0) {
+                console.warn('Seat deletion not yet implemented - need DELETE endpoint');
+            }
+            if (changes.addedSeats.length > 0) {
+                console.warn('Seat creation not yet implemented - need POST endpoint');
+            }
+
+            await Promise.all(promises);
+
+            // Invalidate and refetch
+            await queryClient.invalidateQueries({ queryKey: ['seats', roomId] });
+
+            toast.success('Seat layout saved successfully!', { richColors: true });
+        } catch (error) {
+            toast.error('Failed to save seat layout. Please try again.', { richColors: true });
+            console.error('Error saving layout:', error);
+        }
     };
 
-    const deleteSeatSelected = () => {
-        setSeats((prev) => prev.filter((s) => !selectedSeats.includes(s.seatCode)));
-        setSelectedSeats([]);
-    };
-
-    const toggleActiveSeatSelected = () => {
-        setSeats((prev) => prev.map((s) => (selectedSeats.includes(s.seatCode) ? { ...s, isActive: !s.isActive } : s)));
-    };
-
-    const changeTypeSeatSelected = () => {
-        setSeats((prev) =>
-            prev.map((s) => (selectedSeats.includes(s.seatCode) ? { ...s, seatTypeId: selectedSeatTypeId } : s)),
-        );
-        setSelectedSeats([]);
-    };
-
-    const saveLayout = () => {
-        console.log('Saving layout:', seats);
-        alert('Layout saved! Check console for data.');
-    };
-
-    const resetSeatLayout = () => {
-        setSeats(generateMockSeats(room));
-        setColumns(room.totalColumn);
-        setRows(room.totalRow);
-    };
-
-    const groupedSeats = seats.reduce(
+    const groupedSeats = localSeats.reduce(
         (acc, seat) => {
-            if (!acc[seat.label]) acc[seat.label] = {};
-            acc[seat.label][seat.columnIndex] = seat;
+            if (!acc[seat.label.charAt(0)]) acc[seat.label.charAt(0)] = {};
+            acc[seat.label.charAt(0)][seat.columnIndex] = seat;
             return acc;
         },
         {} as Record<string, Record<number, ISeat>>,
@@ -172,99 +178,98 @@ const CinemaSeatAdmin: React.FC = () => {
         new Set([...Object.keys(groupedSeats), ...Array.from({ length: rows }, (_, i) => String.fromCharCode(65 + i))]),
     ).sort();
 
-    const maxCols = Math.max(columns, ...seats.map((s) => s.columnIndex));
+    const maxCols = Math.max(columns, ...localSeats.map((s) => s.columnIndex));
+
+    useEffect(() => {
+        if (!remoteSeatsPending && !seatTypesPending && fetchedRemoteSeats && fetchedSeatTypes) {
+            initializeFromAPI(fetchedRemoteSeats, fetchedSeatTypes);
+        }
+    }, [remoteSeatsPending, seatTypesPending, fetchedRemoteSeats, fetchedSeatTypes, initializeFromAPI]);
+
+    // Loading state
+    if (remoteSeatsPending || seatTypesPending) {
+        return (
+            <div className="flex items-center justify-center h-96">
+                <Loader2 className="h-8 w-8 animate-spin" />
+                <span className="ml-2">Loading seats...</span>
+            </div>
+        );
+    }
+
+    // Error state
+    if (remoteSeatsError || seatTypesError) {
+        return (
+            <div className="flex items-center justify-center h-96">
+                <div className="text-center">
+                    <p className="text-red-500 mb-4">Failed to load seats</p>
+                    <Button onClick={() => queryClient.invalidateQueries({ queryKey: ['seats', roomId] })}>
+                        Retry
+                    </Button>
+                </div>
+            </div>
+        );
+    }
+
+    console.log(localSeats);
 
     return (
         <div className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-2">
+            <div className="grid grid-cols-1 xl:grid-cols-4 gap-2">
                 {/* Control Panel */}
                 <Card className="lg:col-span-1">
                     <CardHeader className="md:px-6 px-3">
                         <CardTitle className="text-xl">Controls</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4 md:px-6 px-3">
+                    <CardContent className="space-y-4 md:px-4 px-2">
                         {/* Edit Mode */}
                         <div className="space-y-2 max-w-full">
                             <Label className="">Edit Mode</Label>
                             <div className="space-y-2">
-                                <Button
-                                    variant={editMode === 'select' ? 'default' : 'outline'}
-                                    className="w-full justify-start"
-                                    onClick={() => setEditMode('select')}
-                                >
-                                    <MousePointerClick className="h-4 w-4" />
-                                    Select Seats
-                                </Button>
-                                <Button
-                                    variant={editMode === 'add' ? 'default' : 'outline'}
-                                    className="w-full justify-start"
-                                    onClick={() => setEditMode('add')}
-                                >
-                                    <Plus className="h-4 w-4" />
-                                    Add Seat
-                                </Button>
-                                <Button
-                                    variant={editMode === 'delete' ? 'default' : 'outline'}
-                                    className="w-full justify-start"
-                                    onClick={() => setEditMode('delete')}
-                                >
-                                    <Trash2 className="h-4 w-4" />
-                                    Delete Seat
-                                </Button>
-                                <Button
-                                    variant={editMode === 'toggle-active' ? 'default' : 'outline'}
-                                    className="w-full justify-start"
-                                    onClick={() => setEditMode('toggle-active')}
-                                >
-                                    <SquarePower className="h-4 w-4" />
-                                    Toggle Active
-                                </Button>
+                                <div className="flex flex-wrap gap-2 w-full">
+                                    <Button
+                                        variant={editMode === LayoutEditModeEnum.SELECT ? 'default' : 'outline'}
+                                        className="flex-1 justify-start"
+                                        onClick={() => setEditMode(LayoutEditModeEnum.SELECT)}
+                                    >
+                                        <MousePointerClick className="h-4 w-4" />
+                                        Select Seats
+                                    </Button>
+                                    <Button
+                                        variant={editMode === LayoutEditModeEnum.TOGGLE_ACTIVE ? 'default' : 'outline'}
+                                        className="flex-1 justify-start"
+                                        onClick={() => setEditMode(LayoutEditModeEnum.TOGGLE_ACTIVE)}
+                                    >
+                                        <SquarePower className="h-4 w-4" />
+                                        Toggle Active
+                                    </Button>
+                                </div>
+                                <div className="flex flex-wrap gap-2 w-full">
+                                    <Button
+                                        variant={editMode === LayoutEditModeEnum.ADD ? 'default' : 'outline'}
+                                        className="flex-1 justify-start"
+                                        disabled
+                                        onClick={() => setEditMode(LayoutEditModeEnum.ADD)}
+                                    >
+                                        <Plus className="h-4 w-4" />
+                                        Add Seat
+                                    </Button>
+                                    <Button
+                                        variant={editMode === LayoutEditModeEnum.DELETE ? 'default' : 'outline'}
+                                        className="flex-1 justify-start"
+                                        disabled
+                                        onClick={() => setEditMode(LayoutEditModeEnum.DELETE)}
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                        Delete Seat
+                                    </Button>
+                                </div>
                                 <SeatTypeButtonGroup
-                                    types={dummySeatTypes}
-                                    isActive={editMode === 'change-type'}
+                                    types={seatTypes}
+                                    isActive={editMode === LayoutEditModeEnum.CHANGE_TYPE}
                                     selectedType={selectedSeatTypeId}
-                                    onClick={() => setEditMode('change-type')}
+                                    onClick={() => setEditMode(LayoutEditModeEnum.CHANGE_TYPE)}
                                     onSelectType={(type) => setSelectedSeatTypeId(type)}
                                 />
-                            </div>
-                        </div>
-
-                        {/* Grid Size */}
-                        <div className="space-y-2 pt-4 border-t border-slate-700">
-                            <Label className="">Grid Size</Label>
-                            <div className="space-y-2">
-                                <div className="flex gap-2">
-                                    <div className="flex-1">
-                                        <Label className="text-sm">Rows</Label>
-                                        <Input
-                                            type="number"
-                                            value={rows}
-                                            onChange={(e) => setRows(parseInt(e.target.value) || 1)}
-                                            min={1}
-                                            max={26}
-                                        />
-                                    </div>
-                                    <div className="flex-1">
-                                        <Label className="text-sm">Columns</Label>
-                                        <Input
-                                            type="number"
-                                            value={columns}
-                                            onChange={(e) => setColumns(parseInt(e.target.value) || 1)}
-                                            min={1}
-                                            max={30}
-                                        />
-                                    </div>
-                                </div>
-                                <div className="flex gap-2">
-                                    <Button variant="outline" className="flex-1" onClick={regenerateLayout}>
-                                        <Sparkles className="h-4 w-4" />
-                                        Generate
-                                    </Button>
-                                    <Button variant="outline" className="flex-1" onClick={resetSeatLayout}>
-                                        <RotateCcw className="h-4 w-4" />
-                                        Reset
-                                    </Button>
-                                </div>
                             </div>
                         </div>
 
@@ -280,7 +285,7 @@ const CinemaSeatAdmin: React.FC = () => {
                                     Toggle Active
                                 </Button>
                                 <SeatTypeButtonGroup
-                                    types={dummySeatTypes}
+                                    types={seatTypes}
                                     isActive={false}
                                     selectedType={selectedSeatTypeId}
                                     onClick={changeTypeSeatSelected}
@@ -290,15 +295,48 @@ const CinemaSeatAdmin: React.FC = () => {
                         )}
 
                         {/* Save */}
-                        <div className="pt-4 border-t border-slate-700">
-                            <Button className="w-full bg-green-600 hover:bg-green-700" onClick={saveLayout}>
-                                <Save className="h-4 w-4" />
-                                Save Layout
-                            </Button>
+                        <div className="pt-4 border-t border-slate-700 space-y-2">
+                            {hasUnsavedChanges && (
+                                <div className="p-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg">
+                                    <Label className="text-base font-semibold text-amber-900 dark:text-amber-300">
+                                        Unsaved Changes
+                                    </Label>
+                                    <ul className="mt-2 space-y-1 text-sm text-amber-800 dark:text-amber-400">
+                                        {getChangeSummary().map((change, index) => (
+                                            <li key={index} className="flex items-center gap-2">
+                                                <span className="w-2 h-2 bg-amber-500 rounded-full flex-shrink-0" />
+                                                {change}
+                                            </li>
+                                        ))}
+                                        {getChangeSummary().length === 0 && (
+                                            <li className="italic">No changes detected</li>
+                                        )}
+                                    </ul>
+                                </div>
+                            )}
+                            <div className="flex gap-2 w-full">
+                                <Button
+                                    variant="outline"
+                                    className="flex-1"
+                                    onClick={resetLayout}
+                                    disabled={!hasUnsavedChanges}
+                                >
+                                    <RotateCcw className="h-4 w-4" />
+                                    Discard Changes
+                                </Button>
+                                <Button
+                                    className=" flex-1 bg-green-600 hover:bg-green-700"
+                                    onClick={saveLayout}
+                                    disabled={!hasUnsavedChanges}
+                                >
+                                    <Save className="h-4 w-4" />
+                                    Save Layout
+                                </Button>
+                            </div>
                         </div>
 
                         {/* Stats */}
-                        <SeatLayoutStats seats={seats} seatTypes={dummySeatTypes} />
+                        <SeatLayoutStats seats={localSeats} seatTypes={seatTypes} />
                     </CardContent>
                 </Card>
 
@@ -312,11 +350,11 @@ const CinemaSeatAdmin: React.FC = () => {
                         <div className="mb-4 p-3 border-2 rounded-lg">
                             <p className="text-sm ">
                                 <strong>Current Mode: {editMode.toUpperCase()}</strong>
-                                {editMode === 'select' && ' - Click seats to select them'}
-                                {editMode === 'add' && ' - Click empty cells to add seats'}
-                                {editMode === 'delete' && ' - Click seats to remove them'}
-                                {editMode === 'toggle-active' && ' - Click to enable/disable seats'}
-                                {editMode === 'change-type' && ' - Click to toggle VIP/Standard'}
+                                {editMode === LayoutEditModeEnum.SELECT && ' - Click seats to select them'}
+                                {editMode === LayoutEditModeEnum.ADD && ' - Click empty cells to add seats'}
+                                {editMode === LayoutEditModeEnum.DELETE && ' - Click seats to remove them'}
+                                {editMode === LayoutEditModeEnum.TOGGLE_ACTIVE && ' - Click to enable/disable seats'}
+                                {editMode === LayoutEditModeEnum.CHANGE_TYPE && ' - Click to toggle VIP/Standard'}
                             </p>
                         </div>
 
@@ -327,17 +365,36 @@ const CinemaSeatAdmin: React.FC = () => {
                         </div>
 
                         {/* Seat Grid */}
-                        <div className="flex justify-center">
-                            <div className="space-y-2 overflow-x-auto p-2 items-start flex flex-col">
+                        <div className="flex justify-center relative">
+                            <div className="space-y-2 overflow-auto max-h-screen p-2 items-start flex flex-col ">
+                                {/* NEW: Column Headers */}
+                                <div className="flex items-center justify-center gap-2 sticky top-0 z-10 -translate-y-2 backdrop-filter backdrop-blur-lg bg-background/30 shadow-sm border-b border-border">
+                                    <span className="w-8 h-8 text-center leading-loose font-semibold sticky left-0 -translate-x-2 backdrop-filter backdrop-blur-lg bg-background/30">
+                                        {/* Empty corner */}
+                                    </span>
+                                    <div className="flex gap-2">
+                                        {Array.from({ length: maxCols }, (_, i) => i + 1).map((col) => (
+                                            <span
+                                                key={col}
+                                                className="w-8 h-8 text-center leading-loose font-semibold cursor-pointer hover:bg-slate-200"
+                                                onClick={() => selectColumn(col)}
+                                            >
+                                                {col}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
                                 {allRows.map((row) => (
                                     <div key={row} className="flex items-center justify-center gap-2 relative">
-                                        <span className="w-8 h-8 text-center leading-loose font-semibold sticky left-0 -translate-x-2 backdrop-filter backdrop-blur-lg bg-background/30">
+                                        <span
+                                            onClick={() => selectRow(row)}
+                                            className="w-8 h-8 text-center leading-loose font-semibold sticky left-0 -translate-x-2 z-10 cursor-pointer hover:bg-slate-200 border-r border-border backdrop-filter backdrop-blur-lg bg-background/30"
+                                        >
                                             {row}
                                         </span>
                                         <div className="flex gap-2">
                                             {Array.from({ length: maxCols }, (_, i) => i + 1).map((col) => {
                                                 const seat = groupedSeats[row]?.[col];
-
                                                 if (seat) {
                                                     return (
                                                         <Seat
@@ -354,7 +411,7 @@ const CinemaSeatAdmin: React.FC = () => {
                                                         mode={editMode}
                                                         row={row}
                                                         col={col}
-                                                        onClick={handleEmptyCellClick}
+                                                        onClick={() => {}}
                                                     />
                                                 );
                                             })}

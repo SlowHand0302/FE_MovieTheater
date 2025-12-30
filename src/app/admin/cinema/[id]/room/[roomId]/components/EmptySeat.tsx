@@ -1,7 +1,7 @@
-import { EditMode } from './SeatLayout';
+import { LayoutEditModeEnum } from '@/features/seat/useLayoutStore';
 
 interface EmptySeatProps {
-    mode: EditMode;
+    mode: LayoutEditModeEnum;
     row: string;
     col: number;
     onClick: (row: string, col: number) => void;

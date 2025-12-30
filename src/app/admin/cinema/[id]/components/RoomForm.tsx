@@ -41,7 +41,8 @@ const roomFormSchema = z.object({
     totalRow: z
         .number()
         .nonnegative('The number of row must not be negative')
-        .gt(0, 'The room number must be larger than 0'),
+        .gt(0, 'The room number must be larger than 0')
+        .lte(26, 'The maximum rows must less than or equal to 26'),
 });
 
 interface RoomFormProps {
@@ -85,6 +86,8 @@ const RoomForm = ({ room, openForm, setOpenForm }: RoomFormProps) => {
                         if (res.result) {
                             setOpenForm(false);
                             queryClient.invalidateQueries({ queryKey: ['rooms', cinemaId] });
+                            queryClient.invalidateQueries({ queryKey: ['room', cinemaId, room.id] });
+                            queryClient.invalidateQueries({ queryKey: ['seats', room.id] });
                             toast.success('Update room successfully', { richColors: true });
                             form.reset();
                         }

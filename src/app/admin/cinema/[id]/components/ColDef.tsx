@@ -107,31 +107,33 @@ export const useRoomColumns = ({ onEdit, onViewDetails, onDelete, onCopyId }: Pa
                     const room = row.original;
 
                     return (
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="h-8 w-8 p-0 ">
-                                    <MoreHorizontal />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuItem onClick={() => navigator.clipboard.writeText(room.id)}>
-                                    <Copy />
-                                    Copy ID
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem onSelect={() => onViewDetails && onViewDetails(room)}>
-                                    <FileText /> View details
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onSelect={() => onEdit && onEdit(room)}>
-                                    <SquarePen /> Edit
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem onSelect={() => onDelete && onDelete(room)}>
-                                    <Trash2 /> Remove
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                        <div onClick={(e) => e.stopPropagation()}>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" className="h-8 w-8 p-0 ">
+                                        <MoreHorizontal />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                    <DropdownMenuItem onClick={() => navigator.clipboard.writeText(room.id)}>
+                                        <Copy />
+                                        Copy ID
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem onSelect={() => onViewDetails && onViewDetails(room)}>
+                                        <FileText /> View details
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onSelect={() => onEdit && onEdit(room)}>
+                                        <SquarePen /> Edit
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem onSelect={() => onDelete && onDelete(room)}>
+                                        <Trash2 /> Remove
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
                     );
                 },
             },

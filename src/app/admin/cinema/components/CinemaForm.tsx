@@ -78,7 +78,8 @@ const CinemaForm = ({ cinema, openForm, setOpenForm }: CinemaFormProps) => {
                         if (res.result) {
                             setOpenForm(false);
                             queryClient.invalidateQueries({ queryKey: ['cinemas', {}] });
-                            toast.success('Create cinema successfully', { richColors: true });
+                            queryClient.invalidateQueries({ queryKey: ['cinema', cinema.id] });
+                            toast.success('Update cinema successfully', { richColors: true });
                             form.reset();
                         }
                     },

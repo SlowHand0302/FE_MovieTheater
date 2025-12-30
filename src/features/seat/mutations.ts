@@ -1,19 +1,19 @@
 import { apiClient } from '@/lib/apiClient';
 import { ApiResponse } from '@/types/ApiResponse.type';
 import { useMutation } from '@tanstack/react-query';
-import { RoomType } from '@/interfaces/RoomType.interface';
 import { SEAT_ENDPOINT } from './constant';
+import { Seat } from '@/interfaces/Seat.interface';
 
 interface PatchSeatParams {
     ids: string[];
-    isActive: true;
-    seatTypeId: string;
+    isActive?: boolean;
+    seatTypeId?: string;
 }
 // Patch updated seat mutation
 export const usePatchSeat = () => {
     return useMutation({
         mutationFn: async ({ data }: { data: PatchSeatParams }) => {
-            return await apiClient.patch<ApiResponse<RoomType>>(`${SEAT_ENDPOINT}s`, data);
+            return await apiClient.patch<ApiResponse<Seat[]>>(`${SEAT_ENDPOINT}s`, data);
         },
     });
 };

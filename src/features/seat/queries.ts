@@ -9,7 +9,9 @@ export const useSeatsByRoom = (roomId: string) => {
     return useQuery({
         queryKey: ['seats', roomId],
         queryFn: async () => {
-            return await apiClient.get<ApiResponse<Seat[]>>(`${SEAT_ENDPOINT}s/${roomId}}`);
+            return await apiClient.get<ApiResponse<Seat[]>>(`${SEAT_ENDPOINT}s/${roomId}`);
         },
+        enabled: !!roomId,
+        select: (d) => d.data,
     });
 };

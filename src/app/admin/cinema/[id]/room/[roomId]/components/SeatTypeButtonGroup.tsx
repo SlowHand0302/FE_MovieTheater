@@ -25,7 +25,7 @@ const SeatTypeButtonGroup = ({ types, selectedType, onSelectType, onClick, isAct
         <ButtonGroup className="!max-w-full w-full justify-start">
             <Button variant={isActive ? 'default' : 'outline'} className="flex-1 justify-start" onClick={onClick}>
                 <Tags className="h-4 w-4" />
-                Change Type to {`${types.filter((type) => type.id === selectedType)[0].type}`}
+                Change Type to {`${types.filter((type) => type.id === selectedType)[0]?.type ?? types[0]?.type}`}
             </Button>
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>

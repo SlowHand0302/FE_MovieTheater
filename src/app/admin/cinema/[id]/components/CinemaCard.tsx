@@ -1,18 +1,22 @@
 'use client';
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { MapPin, Phone, Mail, Clock } from 'lucide-react';
-
-import { Cinema } from '@/interfaces/Cinema.interface';
-import CinemaBadge from '../../components/CinemaBadge';
-import { Auditable } from '@/interfaces/Auditable.interface';
-import { useCinema } from '@/features/cinema/queries';
+import Link from 'next/link';
+import React, { useState } from 'react';
 import { useParams } from 'next/navigation';
 
+import { Button } from '@/components/ui/button';
+import CinemaForm from '../../components/CinemaForm';
+import CinemaBadge from '../../components/CinemaBadge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { MapPin, Phone, Mail, Clock, ChevronLeft, SquarePen } from 'lucide-react';
+
+import { useCinema } from '@/features/cinema/queries';
+import { Cinema } from '@/interfaces/Cinema.interface';
+
 const CinemaCard = () => {
-    const dynamicParams = useParams();
-    const { data = {}, isPending, isError, error } = useCinema(dynamicParams.id?.toString());
-    const cinema = data as Omit<Cinema, keyof Omit<Auditable, 'id'>>;
+    const { id: cinemaId } = useParams<{ id: string }>();
+    const { data = {}, isPending, isError, error } = useCinema(cinemaId);
+    const cinema = data as Cinema;
+    const [openFormDialog, setOpenFormDialog] = useState<boolean>(false);
 
     if (isPending) return <div>Loading...</div>;
     if (isError) return <div>{error.message}</div>;
@@ -21,6 +25,16 @@ const CinemaCard = () => {
         <div className="flex items-center justify-center">
             <Card className="w-full gap-2 ">
                 <CardHeader className="rounded-t-lg">
+                    <div className="flex justify-between items-center border-b border-slate-300 pb-2">
+                        <Link passHref href={`/admin/cinema`}>
+                            <Button variant={'outline'}>
+                                <ChevronLeft /> Back
+                            </Button>
+                        </Link>
+                        <Button variant={'outline'} onClick={() => setOpenFormDialog(true)}>
+                            <SquarePen />
+                        </Button>
+                    </div>
                     <div className="flex items-start justify-between">
                         <div>
                             <CardTitle className="text-3xl font-bold mb-2">{cinema.name}</CardTitle>
@@ -81,6 +95,7 @@ const CinemaCard = () => {
                     </div>
                 </CardContent>
             </Card>
+            <CinemaForm cinema={cinema} openForm={openFormDialog} setOpenForm={setOpenFormDialog} />
         </div>
     );
 };
