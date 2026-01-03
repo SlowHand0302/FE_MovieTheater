@@ -10,6 +10,7 @@ import {
     IconSettings,
     IconMovie,
 } from '@tabler/icons-react';
+import { Hamburger } from 'lucide-react';
 
 export const navMain: NavItem[] = [
     {
@@ -52,6 +53,11 @@ export const navManagement: NavItem[] = [
         name: 'Movie',
         url: '/admin/movie',
         icon: IconMovie,
+    },
+    {
+        name: 'Food&Drink',
+        url: '/admin/food-drinks',
+        icon: Hamburger,
     },
     {
         name: 'Categories',

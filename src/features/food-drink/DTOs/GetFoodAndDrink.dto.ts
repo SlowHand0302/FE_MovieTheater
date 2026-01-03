@@ -4,4 +4,6 @@ export interface FoodAndDrinkResultData {
     type: string;
     size: string;
     price: number;
+    image: string;
+    description: string;
 }
