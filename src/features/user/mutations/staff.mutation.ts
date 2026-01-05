@@ -6,7 +6,7 @@ import { USER_STAFF_ENDPOINT } from '../constants';
 
 export const useCreateStaff = () => {
     return useMutation({
-        mutationFn: async (data: Omit<Staff, 'id'>) => {
+        mutationFn: async (data: Omit<Staff, 'userId'>) => {
             return apiClient.post<ApiResponse<{ userId: string }>>(`${USER_STAFF_ENDPOINT}`, data);
         },
     });
@@ -14,7 +14,7 @@ export const useCreateStaff = () => {
 
 export const useUpdateStaff = () => {
     return useMutation({
-        mutationFn: async ({ staffId, data }: { staffId: string; data: Omit<Staff, 'id'> }) => {
+        mutationFn: async ({ staffId, data }: { staffId: string; data: Omit<Staff, 'userId' | 'password'> }) => {
             return apiClient.put<ApiResponse<null>>(`${USER_STAFF_ENDPOINT}s/${staffId}`, data);
         },
     });

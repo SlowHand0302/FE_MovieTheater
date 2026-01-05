@@ -13,7 +13,8 @@ export default interface User extends Auditable {
     isVerified: boolean;
 }
 
-export type Staff = Omit<User, 'points' | 'address' | keyof Omit<Auditable, 'id'>> & {
+export type Staff = Omit<User, 'points' | 'address' | keyof Auditable> & {
+    userId: string;
     cinemaId: string;
     position: string;
     salary: number;

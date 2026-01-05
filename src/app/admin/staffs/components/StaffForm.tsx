@@ -93,12 +93,12 @@ const StaffForm = ({ staff, openForm, setOpenForm }: StaffFormProps) => {
     const onSubmit = (data: z.infer<typeof staffFormSchema>) => {
         if (staff) {
             updateStaff(
-                { staffId: '99176018-d2bd-4208-8bcc-7d8a557775d7', data: { ...data, isVerified: true, role: 'staff' } },
+                { staffId: staff.userId, data: { ...data, isVerified: true, role: 'staff' } },
                 {
                     onSuccess: (res) => {
                         if (res.result) {
                             queryClient.invalidateQueries({ queryKey: ['staffs'] });
-                            toast.success('Create food and drink successfully', { richColors: true });
+                            toast.success('Update Staff successfully', { richColors: true });
                             setOpenForm(false);
                             form.reset();
                         }
@@ -121,7 +121,7 @@ const StaffForm = ({ staff, openForm, setOpenForm }: StaffFormProps) => {
                     onSuccess: (res) => {
                         if (res.result) {
                             queryClient.invalidateQueries({ queryKey: ['staffs'] });
-                            toast.success('Create food and drink successfully', { richColors: true });
+                            toast.success('Create staff successfully', { richColors: true });
                             setOpenForm(false);
                             form.reset();
                         }

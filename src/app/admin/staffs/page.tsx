@@ -30,9 +30,9 @@ import StaffForm from './components/StaffForm';
 
 const Page = () => {
     const { data: staffData = [], isPending, isError } = useStaffProfiles();
-    const staffs = staffData as (Staff & { userId: string })[];
+    const staffs = staffData as Staff[];
 
-    const [selectedCinema, setSelectedCinema] = useState<Staff>();
+    const [selectedStaff, setSelectedStaff] = useState<Staff>();
     const [openFormDialog, setOpenFormDialog] = useState<boolean>(false);
 
     const [rowSelection, setRowSelection] = useState({});
@@ -70,7 +70,7 @@ const Page = () => {
     });
 
     function handleEditCinema(staff: Staff) {
-        setSelectedCinema(staff);
+        setSelectedStaff(staff);
         setOpenFormDialog(true);
     }
 
@@ -123,7 +123,7 @@ const Page = () => {
                     <DataTablePagination table={table} pageSizes={[10, 20, 30, 40, 50]} />
                 </section>
             </main>
-            <StaffForm staff={selectedCinema} openForm={openFormDialog} setOpenForm={setOpenFormDialog} />
+            <StaffForm staff={selectedStaff} openForm={openFormDialog} setOpenForm={setOpenFormDialog} />
         </>
     );
 };
