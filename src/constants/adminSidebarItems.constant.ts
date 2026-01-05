@@ -76,6 +76,10 @@ export const navManagement: NavItem[] = [
                 name: 'Movie Genre',
                 url: '/admin/movie-genre',
             },
+            {
+                name: 'Holiday',
+                url: '/admin/holiday',
+            },
         ],
     },
     {
