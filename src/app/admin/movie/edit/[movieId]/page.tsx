@@ -114,7 +114,7 @@ export default function Page() {
                             {preview && (
                                 <div className="space-y-2">
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img src={preview} alt="Preview" className=" h-95 rounded-xl object-cover" />
+                                    <img src={preview} alt="Preview" className=" w-76 rounded-xl object-cover" />
                                 </div>
                             )}
                         </div>

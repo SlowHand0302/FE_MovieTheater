@@ -112,7 +112,7 @@ export const useMovieColumns = ({ onEdit, onViewDetails, onDelete }: Partial<use
                 },
                 cell: ({ row }) => {
                     const state = row.getValue('status') as MovieStatus;
-                    return <MovieBadge status={state} />;
+                    return <MovieBadge status={state} className="capitalize" />;
                 },
                 filterFn: (row, _, filterValue) => {
                     return filterValue.length === 0 ? row.original.status : filterValue.includes(row.original.status); // true or false based on your custom logic
@@ -138,10 +138,10 @@ export const useMovieColumns = ({ onEdit, onViewDetails, onDelete }: Partial<use
                                         <Copy />
                                         Copy ID
                                     </DropdownMenuItem>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem onSelect={() => onViewDetails && onViewDetails(Movie)}>
+                                    {/* <DropdownMenuSeparator /> */}
+                                    {/* <DropdownMenuItem onSelect={() => onViewDetails && onViewDetails(Movie)}>
                                         <FileText /> View details
-                                    </DropdownMenuItem>
+                                    </DropdownMenuItem> */}
                                     <DropdownMenuItem onSelect={() => onEdit && onEdit(Movie)}>
                                         <SquarePen /> Edit
                                     </DropdownMenuItem>

@@ -13,6 +13,7 @@ import {
     getFilteredRowModel,
     getPaginationRowModel,
     getFacetedUniqueValues,
+    Row,
 } from '@tanstack/react-table';
 
 import { CircleX, LoaderCircle, Plus } from 'lucide-react';
@@ -73,6 +74,11 @@ const Page = () => {
     });
 
     function handleEditMovie(movie: MovieBaseResultData) {
+        router.push(`/admin/movie/edit/${movie.id}`);
+    }
+
+    function handleOnTableRowClick(row: Row<MovieBaseResultData>) {
+        const movie = row.original;
         router.push(`/admin/movie/edit/${movie.id}`);
     }
 
@@ -138,7 +144,7 @@ const Page = () => {
                         <LoaderCircle className="animate-spin text-5xl mx-auto" />
                     </div>
                 ) : (
-                    <DataTable table={table} stickyHeader={true} />
+                    <DataTable table={table} stickyHeader={true} onRowClick={handleOnTableRowClick} />
                 )}
                 <DataTablePagination table={table} pageSizes={[10, 20, 30, 40, 50]} />
             </section>

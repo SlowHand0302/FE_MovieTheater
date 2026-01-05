@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import DatePicker from '@/components/DatePicker';
 import { Textarea } from '@/components/ui/textarea';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
-import { TimePickerDemo } from '@/components/TimePicker';
+import { TimePicker } from '@/components/TimePicker';
 
 const BasicInfoSection = () => {
     const form = useFormContext<MovieFormData>();
@@ -65,7 +65,7 @@ const BasicInfoSection = () => {
                     render={({ field, fieldState }) => (
                         <Field data-invalid={fieldState.invalid} className="gap-0">
                             <FieldLabel htmlFor="movie-duration">Duration</FieldLabel>
-                            <TimePickerDemo date={field.value} setDate={field.onChange} />
+                            <TimePicker date={field.value} setDate={field.onChange} />
                             {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                         </Field>
                     )}
