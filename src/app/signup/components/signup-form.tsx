@@ -16,7 +16,7 @@ import { useRegisterMutation } from '@/features/auth/mutations';
 
 const signUpFormSchema = z
     .object({
-        fullname: z.string().nonempty('Full Name required').min(6, 'Full name must have at least 6 characters'),
+        fullName: z.string().nonempty('Full Name required').min(6, 'Full name must have at least 6 characters'),
         email: z.email('Invalid email format').nonempty('Email required'),
         password: z.string().nonempty('Password required').min(6, 'Password must have at least 6 characters'),
         confirmPassword: z.string().nonempty('Confirm Password required'),
@@ -32,7 +32,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'form'>
     const form = useForm<z.infer<typeof signUpFormSchema>>({
         resolver: zodResolver(signUpFormSchema),
         defaultValues: {
-            fullname: '',
+            fullName: '',
             email: '',
             password: '',
             confirmPassword: '',
@@ -53,7 +53,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'form'>
                     </p>
                 </div>
                 <Controller
-                    name="fullname"
+                    name="fullName"
                     control={form.control}
                     render={({ field, fieldState }) => (
                         <Field data-invalid={fieldState.invalid} className="gap-1">

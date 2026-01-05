@@ -82,5 +82,15 @@ export const navManagement: NavItem[] = [
         name: 'Accounts',
         url: '#',
         icon: IconUserCog,
+        children: [
+            {
+                name: 'Customer',
+                url: '/admin/customers',
+            },
+            {
+                name: 'Staff',
+                url: '/admin/staffs',
+            },
+        ],
     },
 ];

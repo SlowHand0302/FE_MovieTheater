@@ -1,4 +1,4 @@
-import { User } from '@/interfaces/User.interface';
+import User from '@/interfaces/User.interface';
 import { apiClient } from '@/lib/apiClient';
 import { ApiResponse } from '@/types/ApiResponse.type';
 import { useQuery } from '@tanstack/react-query';
@@ -10,5 +10,13 @@ export const useCustomerProfile = (userId?: string) => {
         queryFn: () => apiClient.get<ApiResponse<User>>(`${USER_CUSTOMER_ENDPOINT}s?userId=${userId}`),
         enabled: !!userId,
         select: (d) => (Array.isArray(d.data) ? d.data[0] : d.data),
+    });
+};
+
+export const useCustomerProfiles = () => {
+    return useQuery({
+        queryKey: ['customers'],
+        queryFn: () => apiClient.get<ApiResponse<User>>(`${USER_CUSTOMER_ENDPOINT}s`),
+        select: (d) => d.data,
     });
 };

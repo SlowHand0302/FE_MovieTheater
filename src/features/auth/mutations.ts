@@ -4,7 +4,7 @@ import { useMutation } from '@tanstack/react-query';
 
 import { apiClient } from '@/lib/apiClient';
 import { useAuthStore } from './useAuthStore';
-import { User } from '@/interfaces/User.interface';
+import User from '@/interfaces/User.interface';
 import { queryClient } from '@/lib/queryClient.config';
 import { ApiResponse } from '@/types/ApiResponse.type';
 import { decodeJWT } from '@/lib/utils';

@@ -1,4 +1,4 @@
-import { User } from '@/interfaces/User.interface';
+import User from '@/interfaces/User.interface';
 import { apiClient } from '@/lib/apiClient';
 import { ApiResponse } from '@/types/ApiResponse.type';
 import { useQuery } from '@tanstack/react-query';

@@ -1,6 +1,6 @@
 import { Auditable } from './Auditable.interface';
 
-export interface User extends Auditable {
+export default interface User extends Auditable {
     fullName: string;
     email: string;
     password: string;
@@ -12,3 +12,9 @@ export interface User extends Auditable {
     address: string;
     isVerified: boolean;
 }
+
+export type Staff = Omit<User, 'points' | 'address' | keyof Omit<Auditable, 'id'>> & {
+    cinemaId: string;
+    position: string;
+    salary: number;
+};

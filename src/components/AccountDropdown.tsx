@@ -43,7 +43,7 @@ function Account() {
                         <AvatarImage src="https://github.com/shadcn.png" alt={user?.fullName || 'username'} />
                         <AvatarFallback className="rounded-lg">CN</AvatarFallback>
                     </Avatar>
-                    <div className="sm:grid hidden flex-1 max-w-[100px] text-left text-sm leading-tight">
+                    <div className="sm:grid hidden flex-1 max-w-full text-left text-sm leading-tight">
                         <span className="truncate font-semibold">{user?.fullName || 'Login'}</span>
                         <span className="truncate line-clamp-1 text-xs">{user?.email || ''}</span>
                     </div>

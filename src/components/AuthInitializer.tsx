@@ -1,32 +1,23 @@
 'use client';
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 
-import { decodeJWT } from '@/lib/utils';
 import { useAuthStore } from '@/features/auth/useAuthStore';
-import { useCustomerProfile } from '@/features/user/queries/customer.query';
+import { useUserProfile } from '@/features/user/queries/profile.query';
 
 const AuthInitializer = () => {
-    const { accessToken, setUser } = useAuthStore();
-
-    // Decode token once
-    const decoded = useMemo(() => {
-        return accessToken ? decodeJWT(accessToken) : null;
-    }, [accessToken]);
-
-    const userId = decoded?.id;
-    const role = decoded?.role;
+    const { setUser, user } = useAuthStore();
 
     // ❗ Always call the hook – no conditional rendering
-    const { data, isError } = useCustomerProfile(userId ?? '');
+    const { data, isError } = useUserProfile(!user);
     if (isError) {
         console.log('data');
     }
     // Set user only when correct role
     useEffect(() => {
-        if (role === 'customer' && data) {
+        if (data && !user) {
             setUser(data);
         }
-    }, [role, data, setUser]);
+    }, [data, setUser]);
 
     return null;
 };
