@@ -2,8 +2,14 @@ import { apiClient } from '@/lib/apiClient';
 import { ApiResponse } from '@/types/ApiResponse.type';
 import { useQuery } from '@tanstack/react-query';
 import { SHOW_TIME_ENDPOINT, SHOW_TIME_SEAT_ENDPOINT } from './constants';
-import { ShowTimeByCinemaResult, ShowTimeByMovieResult } from './DTOs/GetShowTimes.dto';
+import {
+    ShowTimeByCinemaResult,
+    ShowTimeByMovieResult,
+    ShowTimeByRoomResult,
+    ShowTimeDetailResult,
+} from './DTOs/GetShowTimes.dto';
 import { ShowTimeSeatResult } from './DTOs/GetShowTimeSeat.dto';
+import { ShowTime } from '@/interfaces/Showtime.interface';
 
 interface ShowTimeQueryString {
     Date: string;
@@ -32,6 +38,7 @@ export const useShowTimesByMovie = ({
     });
 };
 
+// Query show time by cinema
 export const useShowTimeByCinema = ({ cinemaId, Date }: { cinemaId?: string } & Pick<ShowTimeQueryString, 'Date'>) => {
     return useQuery({
         queryKey: ['showtimes', cinemaId, Date],
@@ -43,6 +50,24 @@ export const useShowTimeByCinema = ({ cinemaId, Date }: { cinemaId?: string } & 
         },
         select: (d) => d.data,
         enabled: !!cinemaId,
+    });
+};
+
+// Query show time by room
+export const useShowTimeByRoom = ({ roomId, From, To }: { roomId?: string; From?: string; To?: string }) => {
+    return useQuery({
+        queryKey: ['showtimes', roomId, From, To], // Fixed: include From & To, not Date constructor
+        queryFn: async () => {
+            const params = new URLSearchParams();
+            if (From) params.append('From', From);
+            if (To) params.append('To', To);
+
+            return await apiClient.get<ApiResponse<ShowTimeByRoomResult[]>>(
+                `${SHOW_TIME_ENDPOINT}s/${roomId}${params.toString() ? `?${params.toString()}` : ''}`,
+            );
+        },
+        select: (d) => d.data,
+        enabled: !!roomId,
     });
 };
 

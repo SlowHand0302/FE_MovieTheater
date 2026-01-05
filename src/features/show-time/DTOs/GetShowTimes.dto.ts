@@ -1,3 +1,5 @@
+import { ShowTimeStatus } from '@/interfaces/Showtime.interface';
+
 export interface ShowTimeByMovieResult {
     cinemaId: string;
     cinemaName: string;
@@ -22,4 +24,13 @@ export interface ShowTimeDetailResult {
     showtimeId: string;
     startTime: string;
     endTime: string;
+}
+
+export interface ShowTimeByRoomResult {
+    movieId: string;
+    movieName: string;
+    showtimeId: string;
+    startTime: Date;
+    endTime: Date;
+    status: ShowTimeStatus;
 }

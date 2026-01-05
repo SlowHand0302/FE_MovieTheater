@@ -4,11 +4,12 @@ import { ApiResponse } from '@/types/ApiResponse.type';
 import { useMutation } from '@tanstack/react-query';
 import { ShowTime } from '@/interfaces/Showtime.interface';
 import { SHOW_TIME_ENDPOINT } from './constants';
+import { ShowTimeByRoomResult } from './DTOs/GetShowTimes.dto';
 
 // Create show time mutation
 export const useCreateShowTime = () => {
     return useMutation({
-        mutationFn: async (data: Omit<ShowTime, keyof Auditable>) => {
+        mutationFn: async (data: Omit<ShowTimeByRoomResult, 'showtimeId' | 'movieName'>) => {
             return await apiClient.post<ApiResponse<ShowTime>>(SHOW_TIME_ENDPOINT, data);
         },
     });
@@ -17,7 +18,7 @@ export const useCreateShowTime = () => {
 // Update single show time mutation
 export const useUpdateShowTime = () => {
     return useMutation({
-        mutationFn: async ({ id, data }: { id: string; data: Omit<ShowTime, keyof Auditable> }) => {
+        mutationFn: async ({ id, data }: { id: string; data: Omit<ShowTimeByRoomResult, 'showtimeId'> }) => {
             return await apiClient.put<ApiResponse<ShowTime>>(`${SHOW_TIME_ENDPOINT}/${id}`, data);
         },
     });

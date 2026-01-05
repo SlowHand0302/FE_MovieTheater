@@ -16,7 +16,7 @@ export const useRooms = ({
     queryString,
 }: {
     cinemaId?: string;
-    queryString: Partial<Record<keyof Omit<RoomQueryStrings, 'Id'>, string>>;
+    queryString?: Partial<Record<keyof Omit<RoomQueryStrings, 'Id'>, string>>;
 }) => {
     const params = new URLSearchParams(queryString).toString();
 
