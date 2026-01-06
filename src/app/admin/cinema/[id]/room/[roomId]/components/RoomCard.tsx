@@ -1,19 +1,20 @@
+import Link from 'next/link';
 import React, { useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, usePathname } from 'next/navigation';
 
+import { Button } from '@/components/ui/button';
+import RoomForm from '../../../components/RoomForm';
 import RoomBadge from '../../../components/RoomBadge';
-import { Film, Grid3x3, Building2, Users, Tag, SquarePen, ArrowLeft, ChevronLeft } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Film, Grid3x3, Building2, Users, Tag, SquarePen, ChevronLeft, Armchair, CalendarCog } from 'lucide-react';
 
 import { useRoom } from '@/features/room/queries';
 import { Room } from '@/interfaces/Room.interface';
 import { useCinema } from '@/features/cinema/queries';
 import { Cinema } from '@/interfaces/Cinema.interface';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import RoomForm from '../../../components/RoomForm';
 
 const RoomCard = () => {
+    const pathname = usePathname();
     const { id: cinemaId, roomId } = useParams<{ id: string; roomId: string }>();
     const { data: roomData = {}, isPending: roomPending, isError: roomError } = useRoom({ cinemaId, roomId });
     const { data: cinemaData, isPending: cinemaPending, isError: cinemaError } = useCinema(cinemaId);
@@ -24,6 +25,8 @@ const RoomCard = () => {
 
     const [openFormDialog, setOpenFormDialog] = useState<boolean>(false);
 
+    console.log(pathname);
+
     if (roomPending || cinemaPending) return <div>Loading...</div>;
     if (roomError || cinemaError) return <div>Something wrong happened.</div>;
 
@@ -32,11 +35,23 @@ const RoomCard = () => {
             <Card className="w-full gap-2 pt-4">
                 <CardHeader className="rounded-t-lg">
                     <div className="flex justify-between items-center border-b border-slate-300 pb-2 ">
-                        <Link passHref href={`/admin/cinema/${cinemaId}`}>
-                            <Button variant={'outline'}>
-                                <ChevronLeft /> Back
-                            </Button>
-                        </Link>
+                        <div className="space-x-3">
+                            <Link passHref href={`/admin/cinema/${cinemaId}`}>
+                                <Button variant={'outline'}>
+                                    <ChevronLeft /> Back
+                                </Button>
+                            </Link>
+                            <Link passHref href={`/admin/cinema/${cinemaId}/room/${roomId}/seats`}>
+                                <Button variant={pathname.includes('seats') ? 'default' : 'outline'}>
+                                    <Armchair /> Manage Seat Layout
+                                </Button>
+                            </Link>
+                            <Link passHref href={`/admin/cinema/${cinemaId}/room/${roomId}/show-times`}>
+                                <Button variant={pathname.includes('show-times') ? 'default' : 'outline'}>
+                                    <CalendarCog /> Manage Showtime
+                                </Button>
+                            </Link>
+                        </div>
                         <Button variant={'outline'} onClick={() => setOpenFormDialog(true)}>
                             <SquarePen />
                         </Button>

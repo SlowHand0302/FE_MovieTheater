@@ -1,8 +1,8 @@
+import { toast } from 'sonner';
 import React, { useEffect } from 'react';
 import { useParams } from 'next/navigation';
 
 import Seat from './Seat';
-import { toast } from 'sonner';
 import EmptySeat from './EmptySeat';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -10,10 +10,9 @@ import SeatLayoutStats from './SeatLayoutStats';
 import SeatLayoutLegend from './SeatLayoutLegend';
 import SeatTypeButtonGroup from './SeatTypeButtonGroup';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Trash2, Plus, Save, RotateCcw, SquarePower, MousePointerClick, Sparkles, Loader2 } from 'lucide-react';
+import { Trash2, Plus, Save, RotateCcw, SquarePower, MousePointerClick, Loader2 } from 'lucide-react';
 
 import { Seat as ISeat } from '@/interfaces/Seat.interface';
-import { dummySeatTypes } from '@/features/seat-type/constants/dummyData.constant';
 import { useSeatsByRoom } from '@/features/seat/queries';
 import { useSeatTypes } from '@/features/seat-type/queries';
 import { SeatType } from '@/interfaces/SeatType.interface';
@@ -322,7 +321,7 @@ const CinemaSeatAdmin: React.FC = () => {
                                     disabled={!hasUnsavedChanges}
                                 >
                                     <RotateCcw className="h-4 w-4" />
-                                    Discard Changes
+                                    Discard
                                 </Button>
                                 <Button
                                     className=" flex-1 bg-green-600 hover:bg-green-700"
@@ -422,7 +421,7 @@ const CinemaSeatAdmin: React.FC = () => {
                         </div>
 
                         {/* Legend */}
-                        <SeatLayoutLegend types={dummySeatTypes} />
+                        <SeatLayoutLegend types={seatTypes} />
                     </CardContent>
                 </Card>
             </div>
