@@ -31,13 +31,13 @@ const AccountDetailsTab = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1">
                             <p className="text-sm font-medium text-muted-foreground">Account ID</p>
-                            <p className="font-mono text-sm">{formatted?.id}</p>
+                            <p className="font-mono text-sm">{formatted?.id || 'Updating...'}</p>
                         </div>
 
                         <div className="space-y-1">
                             <p className="text-sm font-medium text-muted-foreground">Role</p>
                             <Badge variant="outline" className="capitalize">
-                                {formatted?.role}
+                                {formatted?.role || 'Updating...'}
                             </Badge>
                         </div>
 

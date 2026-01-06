@@ -2,13 +2,10 @@
 import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 
-import { dummyRooms } from '@/features/room/constants/dummyData.constant';
 import { mockMovies } from '@/features/movie/constants/dummyData.constant';
-import { dummyRoomTypes } from '@/features/room-type/constants/dummyData.constant';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { dummyCinemas } from '@/features/cinema/constants/dummyData.constant';
 import { Button } from '@/components/ui/button';
-import { useShowTimeSeatByShowTime } from '@/features/show-time/queries';
+import { useShowTime, useShowTimeSeatByShowTime } from '@/features/show-time/queries';
 import { ShowTimeSeatResult } from '@/features/show-time/DTOs/GetShowTimeSeat.dto';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SelectSeatTab from './components/SeatSelector';
@@ -19,27 +16,26 @@ import { toast } from 'sonner';
 import { useCreateTransactionMutation } from '@/features/payment/mutations';
 import { CreateBookingResponse } from '@/features/booking/DTOs/CreateResponse.dto';
 import { CreateTransactionResponse } from '@/features/payment/DTOs/CreateTransactionResponse.dto';
+import { ShowtimeDetailResult } from '@/features/show-time/DTOs/GetShowTimes.dto';
 
 const Page = () => {
     const router = useRouter();
     const dynamicParams = useParams();
     const showtimeId = dynamicParams.showTimeId as string;
 
-    const { data = [] } = useShowTimeSeatByShowTime(showtimeId);
-    const showtimeSeats = data as ShowTimeSeatResult[];
+    const {
+        data: showtimeSeatData = [],
+        isPending: showtimeSeatPending,
+        isError: showtimeSeatError,
+    } = useShowTimeSeatByShowTime(showtimeId);
+    const { data: showtimeData = {}, isPending: showtimePending, isError: showtimeError } = useShowTime(showtimeId);
+    const showtime = showtimeData as ShowtimeDetailResult;
+    const showtimeSeats = showtimeSeatData as ShowTimeSeatResult[];
 
     const { mutate: createBooking } = useCreateBookingMutation();
     const { mutate: createTransaction } = useCreateTransactionMutation();
 
     const [currentTab, setCurrentTab] = useState('seat');
-
-    const movie = mockMovies[0];
-    const showTime = new Date();
-    const time = new Intl.DateTimeFormat('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false, // This ensures 24-hour format
-    }).format(showTime);
 
     const [selectedShowtimeSeats, setSelectedShowtimeSeats] = useState<ShowTimeSeatResult[]>([]);
     const [selectedFoodAndDrink, setSelectedFoodAndDrink] = useState<SelectedFoodDrink[]>([]);
@@ -130,6 +126,8 @@ const Page = () => {
             );
         }
     };
+    if (showtimePending || showtimeSeatPending) return <div>Loading...</div>;
+    if (showtimeError || showtimeSeatError) return <div>There are something wrong happen.</div>;
 
     return (
         <div className="mt-20 grid grid-cols-1 lg:grid-cols-5 gap-3 min-h-screen">
@@ -172,20 +170,28 @@ const Page = () => {
                 <Card>
                     <CardHeader className="flex gap-3">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={movie.poster} alt={movie.name} className="aspect-auto h-50 rounded-xl object-cover" />
+                        <img
+                            src={showtime.poster}
+                            alt={showtime.movieName}
+                            className="aspect-auto h-50 rounded-xl object-cover"
+                        />
                         <div className="space-y-3">
-                            <CardTitle className="text-2xl">{movie.name}</CardTitle>
+                            <CardTitle className="text-2xl">{showtime.movieName}</CardTitle>
                             <CardDescription>
-                                <span className="font-bold text-sm">{dummyCinemas[0].name}</span> -{' '}
-                                {dummyCinemas[0].city}
+                                <span className="font-bold text-sm">{showtime.cinemaName}</span> - {showtime.city}
                             </CardDescription>
                             <CardDescription>
-                                <span className="font-bold">RAP {dummyRooms[0].roomNumber}</span> -{' '}
-                                {dummyRoomTypes[0].type}
+                                <span className="font-bold">RAP {showtime.roomNumber}</span> - {showtime.roomType}
                             </CardDescription>
                             <CardDescription>
-                                Time: <span className="font-bold">{time}</span> - Date:{' '}
-                                <span className="font-bold">{showTime.toLocaleDateString('vi-VN')}</span>
+                                Time:{' '}
+                                <span className="font-bold">
+                                    {new Date(showtime.startTime).toLocaleTimeString('vi-VN')}
+                                </span>{' '}
+                                - Date:{' '}
+                                <span className="font-bold">
+                                    {new Date(showtime.startTime).toLocaleDateString('vi-VN')}
+                                </span>
                             </CardDescription>
                         </div>
                     </CardHeader>
@@ -209,11 +215,14 @@ const Page = () => {
                                                 </CardDescription>
                                             </div>
                                             <CardTitle>
-                                                {value.length > 0 &&
+                                                {new Intl.NumberFormat('vi-Vn', {
+                                                    style: 'currency',
+                                                    currency: 'VND',
+                                                }).format(
                                                     value.reduce((acc, seat) => {
                                                         return acc + seat.price;
-                                                    }, 0)}
-                                                $
+                                                    }, 0),
+                                                )}{' '}
                                             </CardTitle>
                                         </div>
                                     );
@@ -230,7 +239,12 @@ const Page = () => {
                                                     {selected.quantity}x {selected.name}
                                                 </CardTitle>
                                             </div>
-                                            <CardTitle>{selected.price * selected.quantity}$</CardTitle>
+                                            <CardTitle>
+                                                {new Intl.NumberFormat('vi-Vn', {
+                                                    style: 'currency',
+                                                    currency: 'VND',
+                                                }).format(selected.price * selected.quantity)}{' '}
+                                            </CardTitle>
                                         </div>
                                     );
                                 })}
@@ -238,7 +252,12 @@ const Page = () => {
                         )}
                         <div className="flex justify-between pt-6 text-2xl font-bold border-t border-dashed">
                             <p>Total: </p>
-                            <p>{totalTimeSeatPrice} $</p>
+                            <p>
+                                {new Intl.NumberFormat('vi-Vn', {
+                                    style: 'currency',
+                                    currency: 'VND',
+                                }).format(totalTimeSeatPrice)}{' '}
+                            </p>
                         </div>
                     </CardContent>
                     <CardFooter className="flex gap-3">

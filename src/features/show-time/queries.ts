@@ -82,3 +82,14 @@ export const useShowTimeSeatByShowTime = (showTimeId: string) => {
         enabled: !!showTimeId,
     });
 };
+
+export const useShowTime = (showtimeId: string) => {
+    return useQuery({
+        queryKey: ['showtime', showtimeId],
+        queryFn: async () => {
+            return await apiClient.get<ApiResponse<ShowTimeDetailResult>>(`/showtime-details/${showtimeId}`);
+        },
+        enabled: !!showtimeId,
+        select: (d) => (Array.isArray(d.data) ? d.data[0] : d.data),
+    });
+};

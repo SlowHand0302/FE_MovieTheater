@@ -52,7 +52,7 @@ export function GlobalTrailerProvider({ children }: { children: ReactNode }) {
                     <div className="relative w-full max-w-5xl aspect-video">
                         <iframe
                             className="absolute inset-0 w-full h-full rounded-lg shadow-2xl"
-                            src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0&modestbranding=1&playsinline=1`}
+                            src={`https://www.youtube.com/embed/${youtubeId}?autoplay=0&rel=0&modestbranding=1&playsinline=1`}
                             title="Movie Trailer"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowFullScreen

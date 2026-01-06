@@ -89,19 +89,19 @@ const ShowtimeForm = ({ openForm, setOpenForm, showtime }: ShowtimeFormProps) =>
     const onSubmit = (data: z.infer<typeof showtimeFormSchema>) => {
         console.log(data);
 
-        // createShowtime(data, {
-        //     onSuccess: (res) => {
-        //         if (res.result) {
-        //             setOpenForm(false);
-        //             queryClient.invalidateQueries({ queryKey: ['rooms', cinemaId] });
-        //             toast.success('Create room successfully', { richColors: true });
-        //             form.reset();
-        //         }
-        //     },
-        //     onError: (error) => {
-        //         toast.error(error.message, { richColors: true });
-        //     },
-        // });
+        createShowtime(data, {
+            onSuccess: (res) => {
+                if (res.result) {
+                    setOpenForm(false);
+                    queryClient.invalidateQueries({ queryKey: ['rooms', cinemaId] });
+                    toast.success('Create room successfully', { richColors: true });
+                    form.reset();
+                }
+            },
+            onError: (error) => {
+                toast.error(error.message, { richColors: true });
+            },
+        });
     };
 
     const onError = (error: FieldErrors) => {};

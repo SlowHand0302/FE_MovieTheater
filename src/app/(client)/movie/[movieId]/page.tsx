@@ -16,7 +16,7 @@ export default function MovieDetailPage() {
     const dynamicParams = useParams();
     const movieId = dynamicParams.movieId;
     const { openTrailer } = useTrailer();
-    const { data, isError, isLoading, error } = useMovieById(movieId?.toString());
+    const { data = {}, isError, isLoading, error } = useMovieById(movieId?.toString());
     const movie = data as MovieBaseResultData;
 
     if (isLoading) return <div>Loading...</div>;

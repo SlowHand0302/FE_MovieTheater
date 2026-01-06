@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { Plus, Minus, Popcorn } from 'lucide-react';
+import React from 'react';
+import { Plus, Minus } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -58,8 +58,15 @@ export default function FoodDrinkSelector({ onSelectionChange, selectedValues }:
                         key={combo.id}
                         className="flex flex-row items-start gap-4 p-4 hover:shadow-md transition-shadow"
                     >
-                        <div className="flex items-center justify-center w-24 h-24rounded-lg bg-muted">
-                            <Popcorn className="w-20 h-20" />
+                        <div className="flex items-center justify-center w-24 h-24 rounded-lg bg-muted">
+                            <div className="relative overflow-hidden rounded-lg">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                    src={`${combo.image}`}
+                                    alt={combo.name}
+                                    className="size-24 aspect-video object-cover rounded-md"
+                                />
+                            </div>
                         </div>
 
                         {/* Content */}
@@ -67,7 +74,7 @@ export default function FoodDrinkSelector({ onSelectionChange, selectedValues }:
                             <div>
                                 <h3 className="font-semibold text-foreground">{combo.name}</h3>
                                 <p className="text-sm text-muted-foreground mt-1">
-                                    {combo.type} - {combo.size}
+                                    {combo.type} - {combo.size} - {combo.description}
                                 </p>
                             </div>
 

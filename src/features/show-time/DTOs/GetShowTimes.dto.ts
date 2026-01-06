@@ -34,3 +34,19 @@ export interface ShowTimeByRoomResult {
     endTime: Date;
     status: ShowTimeStatus;
 }
+
+export interface ShowtimeDetailResult {
+    cinemaId: string;
+    cinemaName: string;
+    city: string;
+    roomId: string;
+    roomNumber: number;
+    totalColumn: number;
+    totalRow: number;
+    roomType: string;
+    startTime: string;
+    endTime: string;
+    movieId: string;
+    movieName: string;
+    poster: string;
+}
